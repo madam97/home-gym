@@ -1,3 +1,66 @@
 * {
   box-sizing: border-box;
 }
+
+html,
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  color: $black;
+  font-family: $font-roboto;
+  font-size: 16px;
+  font-weight: 100;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,h2,h3,h4,h5,h6,
+.h1,.h2,.h3,.h4,.h5,.h6 {
+  color: $black;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+a {
+  color: $gray-33;
+  text-decoration: none;
+
+  &:hover,
+  &:active,
+  &:focus {
+    color: $primary;
+  }
+}
+
+.logo {
+  height: $nav-height;
+
+  @at-root a#{&} {
+    font-weight: 500;
+    line-height: $nav-height;
+  }
+}
+
+.btn {
+  cursor: pointer;
+  padding: 0.55em 1.55em;
+  border: 0;
+  text-transform: uppercase;
+  font-family: $font-roboto;
+  font-size: 1em;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: $primary;
+  color: $white;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    background: $black;
+  }
+}
