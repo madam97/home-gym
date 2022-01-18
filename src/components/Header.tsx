@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-const Header = (): JSX.Element => {
+export default function Header(): JSX.Element {
 
   const [isMenuOpened, setIsMenuOpened] = useState<boolean>(false);
 
@@ -14,7 +15,7 @@ const Header = (): JSX.Element => {
   return (
     <header>
       <nav className="nav">
-        <a className="logo" href="/">HomeGym</a>
+        <Link className="logo" to="/">HomeGym</Link>
 
         <button className="nav-toggler" onClick={toggleMenu}>
           <span></span>
@@ -23,13 +24,17 @@ const Header = (): JSX.Element => {
         </button>
 
         <ul className={`nav-menu ${isMenuOpened ? 'opened' : ''}`}>
-          <li><a href="">My workout plan</a></li>
-          <li><a href="">Workout performance</a></li>
-          <li><a href="">Excercises</a></li>
+          <li>
+            <Link to="/my-workout">My workout plan</Link>
+          </li>
+          <li>
+            <Link to="/performance">Workout performance</Link>
+          </li>
+          <li>
+            <Link to="/excercises">Excercises</Link>
+          </li>
         </ul>
       </nav>
     </header>
   )
-}
-
-export default Header;
+};
