@@ -1,0 +1,28 @@
+{
+  "excersises" : [
+    {
+      "id": 1,
+      "name": "Fekvőtámasz",
+      "type": "Mell, váll",
+      "desc": "Exercitation anim in dolore anim sunt magna Lorem id tempor non ut aute.",
+      "setCount": "3",
+      "repetitionCount": "12"
+    },
+    {
+      "id": 2,
+      "name": "Oldalemelés",
+      "type": "Váll",
+      "desc": "Ullamco nulla quis ullamco esse voluptate et ex minim proident excepteur incididunt eu culpa ex.",
+      "setCount": "3",
+      "repetitionCount": "20"
+    },
+    {
+      "id": 3,
+      "name": "Koncentrált bicepsz",
+      "type": "Kar",
+      "desc": "Dolor cupidatat sunt qui tempor fugiat occaecat ea culpa excepteur esse velit voluptate cupidatat incididunt.",
+      "setCount": "3",
+      "repetitionCount": "12"
+    }
+  ]
+}
