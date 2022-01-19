@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 
 export default function Header(): JSX.Element {
 
-  const [isMenuOpened, setIsMenuOpened] = useState<boolean>(false);
+  const [menuOpened, setMenuOpened] = useState<boolean>(false);
 
   /**
    * Opens/closes the header menu
    */
   const toggleMenu = (): void => {
-    setIsMenuOpened(!isMenuOpened);
+    setMenuOpened(!menuOpened);
   }
 
   return (
@@ -23,7 +23,7 @@ export default function Header(): JSX.Element {
           <span></span>
         </button>
 
-        <ul className={`nav-menu ${isMenuOpened ? 'opened' : ''}`}>
+        <ul className={`nav-menu ${menuOpened ? 'opened' : ''}`}>
           <li>
             <Link to="/my-workout">My workout plan</Link>
           </li>
