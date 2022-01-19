@@ -11,20 +11,22 @@ const App = (): JSX.Element => {
       <div className="App">
         <Header />
 
-        <Switch>
-          <Route path="/" exact>
-            <Home />
-          </Route>
-          <Route path="/my-workout">
-            <MyWorkout />
-          </Route>
-          <Route path="/performance">
-            <Performance />
-          </Route>
-          <Route path="/excercises">
-            <Excercises />
-          </Route>
-        </Switch>
+        <main>
+          <Switch>
+            <Route path="/" exact>
+              <Home />
+            </Route>
+            <Route path="/my-workout">
+              <MyWorkout />
+            </Route>
+            <Route path="/performance">
+              <Performance />
+            </Route>
+            <Route path="/excercises">
+              <Excercises />
+            </Route>
+          </Switch>
+        </main>
       </div>
     </Router>
   );
