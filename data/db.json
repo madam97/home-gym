@@ -1,28 +1,64 @@
 {
-  "excersises" : [
+  "excerciseTypes" : [
     {
       "id": 1,
-      "name": "Fekvőtámasz",
-      "type": "Mell, váll",
-      "desc": "Exercitation anim in dolore anim sunt magna Lorem id tempor non ut aute.",
-      "setCount": "3",
-      "repetitionCount": "12"
+      "name": "Mell, váll"
     },
     {
       "id": 2,
-      "name": "Oldalemelés",
-      "type": "Váll",
-      "desc": "Ullamco nulla quis ullamco esse voluptate et ex minim proident excepteur incididunt eu culpa ex.",
-      "setCount": "3",
-      "repetitionCount": "20"
+      "name": "Váll"
     },
     {
       "id": 3,
+      "name": "Kar"
+    }
+  ],
+
+  "excercises" : [
+    {
+      "id": 1,
+      "excerciseTypeId": 1,
+      "name": "Fekvőtámasz",
+      "desc": "Exercitation anim in dolore anim sunt magna Lorem id tempor non ut aute."
+    },
+    {
+      "id": 2,
+      "excerciseTypeId": 2,
+      "name": "Oldalemelés",
+      "desc": "Ullamco nulla quis ullamco esse voluptate et ex minim proident excepteur incididunt eu culpa ex."
+    },
+    {
+      "id": 3,
+      "excerciseTypeId": 3,
       "name": "Koncentrált bicepsz",
-      "type": "Kar",
-      "desc": "Dolor cupidatat sunt qui tempor fugiat occaecat ea culpa excepteur esse velit voluptate cupidatat incididunt.",
-      "setCount": "3",
-      "repetitionCount": "12"
+      "desc": "Dolor cupidatat sunt qui tempor fugiat occaecat ea culpa excepteur esse velit voluptate cupidatat incididunt."
+    }
+  ],
+
+  "workouts": [
+    {
+      "id": 1,
+      "excerciseId": 1,
+      "setCount": 3,
+      "repetitionCount": 12,
+      "day": 0,
+      "orderInd": 1
+    },
+    {
+      "id": 2,
+      "excerciseId": 2,
+      "setCount": 3,
+      "repetitionCount": 20,
+      "day": 0,
+      "orderInd": 1
+    },
+    {
+      "id": 3,
+      "excerciseId": 3,
+      "setCount": 3,
+      "repetitionCount": 12,
+      "day": 0,
+      "orderInd": 1
     }
   ]
 }
