@@ -15,11 +15,31 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+header {
+  height: $nav-height;
+}
+
 h1,h2,h3,h4,h5,h6,
-.h1,.h2,.h3,.h4,.h5,.h6 {
+.h1,.h2,.h3,.h4,.h5,.h6,.title {
   color: $black;
   text-transform: uppercase;
   font-weight: 500;
+}
+
+.subtitle {
+  margin: 0 0 0.8em 0;
+  color: $gray-7a;
+  font-size: 0.8em;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+p {
+  margin: 0 0 1em 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 a {

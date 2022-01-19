@@ -1,0 +1,28 @@
+// Responsive elements
+.section {
+  margin: 0 auto;
+  padding: 0 $gap;
+  max-width: $section-max-width;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 (-$gap * 0.5);
+}
+
+.col {
+  flex: 100% 0 0;
+  margin: 0 0 $gap 0;
+  padding: 0 $gap * 0.5;
+
+  @each $name in $breakpoint-names {
+    @media (min-width: map-get($breakpoints-min, $name)) {
+      @for $i from 1 through $col-max-count {
+        &.#{$name}-#{$i} {
+          flex: (100% * ($i / $col-max-count)) 0 0;
+        }
+      }
+    }
+  }
+}

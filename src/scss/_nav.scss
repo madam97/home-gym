@@ -20,13 +20,33 @@
     }
   }
 
-  @media (max-width: $break-sm-max) {
+  @media (max-width: $break-xs-max) {
     .nav-menu {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: $break-sm-min) and (max-width: $break-sm-max) {
+    .nav-menu {
+      width: 300px;
+      border-bottom-left-radius: $gap;
+    }
+  }
+
+  @media (max-width: $break-sm-max) {
+    header & {
+      position: fixed;
+      width: 100%;
+    }
+
+    .nav-menu {
+      overflow: hidden;
       position: fixed;
       top: $nav-height;
       right: 0;
-      width: 300px;
+      padding: $gap * 0.5 0;
       background: $white;
+      box-shadow: 0 10px 10px $gray-e5;
       transition: $anim-time;
 
       &:not(.opened) {
@@ -35,6 +55,13 @@
 
       a {
         padding: $gap * 0.5 $gap;
+
+        &:hover,
+        &:active,
+        &:focus,
+        &.active {
+          background: $gray-e5;
+        }
       }
     }
   }
