@@ -2,7 +2,7 @@
   "excerciseTypes" : [
     {
       "id": 1,
-      "name": "Mell, váll"
+      "name": "Mell"
     },
     {
       "id": 2,
@@ -11,27 +11,109 @@
     {
       "id": 3,
       "name": "Kar"
+    },
+    {
+      "id": 4,
+      "name": "Láb"
+    },
+    {
+      "id": 5,
+      "name": "Has"
     }
   ],
 
   "excercises" : [
     {
       "id": 1,
-      "excerciseTypeId": 1,
       "name": "Fekvőtámasz",
-      "desc": "Exercitation anim in dolore anim sunt magna Lorem id tempor non ut aute."
+      "desc": "Exercitation anim in dolore anim sunt magna Lorem id tempor non ut aute.",
+      "excerciseTypes": [
+        {
+          "id": 1,
+          "name": "Mell"
+        },
+        {
+          "id": 2,
+          "name": "Váll"
+        }
+      ]
     },
     {
       "id": 2,
-      "excerciseTypeId": 2,
       "name": "Oldalemelés",
-      "desc": "Ullamco nulla quis ullamco esse voluptate et ex minim proident excepteur incididunt eu culpa ex."
+      "desc": "Ullamco nulla quis ullamco esse voluptate et ex minim proident excepteur incididunt eu culpa ex.",
+      "excerciseTypes": [
+        {
+          "id": 2,
+          "name": "Váll"
+        }
+      ]
     },
     {
       "id": 3,
-      "excerciseTypeId": 3,
       "name": "Koncentrált bicepsz",
-      "desc": "Dolor cupidatat sunt qui tempor fugiat occaecat ea culpa excepteur esse velit voluptate cupidatat incididunt."
+      "desc": "Dolor cupidatat sunt qui tempor fugiat occaecat ea culpa excepteur esse velit voluptate cupidatat incididunt.",
+      "excerciseTypes": [
+        {
+          "id": 3,
+          "name": "Kar"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Tricepsznyújtás váltott karral",
+      "desc": "Adipisicing exercitation incididunt cillum qui adipisicing sit quis veniam aliquip dolor.",
+      "excerciseTypes": [
+        {
+          "id": 3,
+          "name": "Kar"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Egykezes evezés",
+      "desc": "Eu in mollit proident labore voluptate occaecat non deserunt ea ut elit commodo.",
+      "excerciseTypes": [
+        {
+          "id": 3,
+          "name": "Kar"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Guggolás saját súllyal",
+      "desc": "Occaecat mollit pariatur proident ad amet amet dolore veniam cupidatat deserunt.",
+      "excerciseTypes": [
+        {
+          "id": 4,
+          "name": "Láb"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Vádli állva",
+      "desc": "Incididunt culpa laboris non ex fugiat sunt ullamco sint exercitation commodo.",
+      "excerciseTypes": [
+        {
+          "id": 4,
+          "name": "Láb"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Hasprés",
+      "desc": "Mollit ipsum aute sint cillum et sit anim eu do enim amet eiusmod elit.",
+      "excerciseTypes": [
+        {
+          "id": 5,
+          "name": "Has"
+        }
+      ]
     }
   ],
 
@@ -40,7 +122,7 @@
       "id": 1,
       "excerciseId": 1,
       "setCount": 3,
-      "repetitionCount": 12,
+      "repetitionCount": 10,
       "day": 0,
       "orderInd": 1
     },
@@ -48,15 +130,55 @@
       "id": 2,
       "excerciseId": 2,
       "setCount": 3,
-      "repetitionCount": 20,
+      "repetitionCount": 15,
       "day": 0,
-      "orderInd": 1
+      "orderInd": 2
     },
     {
       "id": 3,
       "excerciseId": 3,
       "setCount": 3,
       "repetitionCount": 12,
+      "day": 0,
+      "orderInd": 3
+    },
+    {
+      "id": 4,
+      "excerciseId": 4,
+      "setCount": 3,
+      "repetitionCount": 12,
+      "day": 0,
+      "orderInd": 4
+    },
+    {
+      "id": 5,
+      "excerciseId": 5,
+      "setCount": 3,
+      "repetitionCount": 12,
+      "day": 0,
+      "orderInd": 1
+    },
+    {
+      "id": 6,
+      "excerciseId": 6,
+      "setCount": 3,
+      "repetitionCount": 12,
+      "day": 0,
+      "orderInd": 1
+    },
+    {
+      "id": 7,
+      "excerciseId": 7,
+      "setCount": 3,
+      "repetitionCount": 15,
+      "day": 0,
+      "orderInd": 1
+    },
+    {
+      "id": 8,
+      "excerciseId": 8,
+      "setCount": 3,
+      "repetitionCount": 15,
       "day": 0,
       "orderInd": 1
     }
