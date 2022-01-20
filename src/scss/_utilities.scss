@@ -1,8 +1,31 @@
+@use 'sass:string';
+
+$directions: 'top' 'right' 'bottom' 'left';
+
+// Margin, padding
+@for $i from 1 through 5 {
+  @each $dir in $directions {
+    .m#{str-slice($dir,1,1)}-#{$i} { margin-#{$dir}: $i * $gap !important; }
+    .p#{str-slice($dir,1,1)}-#{$i} { padding-#{$dir}: $i * $gap !important; }
+  }
+
+  .mx-#{$i} { margin-left: $i * $gap !important; margin-right: $i * $gap !important; }
+  .my-#{$i} { margin-top: $i * $gap !important; margin-bottom: $i * $gap !important; }
+  .px-#{$i} { padding-left: $i * $gap !important; padding-right: $i * $gap !important; }
+  .py-#{$i} { padding-top: $i * $gap !important; padding-bottom: $i * $gap !important; }
+}
+
+
+
 // Responsive elements
 .section {
   margin: 0 auto;
   padding: 0 $gap;
   max-width: $section-max-width;
+
+  @media (min-width: $section-max-width) {
+    border-radius: $gap;
+  }
 }
 
 .row {
@@ -26,3 +49,22 @@
     }
   }
 }
+
+
+
+// Backgrounds
+
+.bg-gray { background: $gray-e5; }
+
+// Borders
+@each $dir in $directions {
+  .b#{str-slice($dir,1,1)} { border-#{$dir}: 1px solid $gray-e5; }
+}
+
+
+
+// Texts
+@for $i from 1 through 5 {
+  .para-hidden-#{$i} { overflow: hidden; max-height: 1.2em * $i; }
+}
+
