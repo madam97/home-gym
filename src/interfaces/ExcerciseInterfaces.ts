@@ -8,5 +8,5 @@ interface IExcercise {
   excerciseTypeId: number,
   name: string,
   desc: string,
-  excerciseType?: IExcerciseType
+  excerciseTypes: IExcerciseType[]
 };
