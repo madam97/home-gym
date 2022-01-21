@@ -1,0 +1,36 @@
+@import '../variables';
+
+.container-days {
+  overflow-x: scroll;
+
+  &>div {
+    display: flex;
+  }
+
+  .btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1 0 0;
+    padding: 1em;
+
+    &:not(:last-child) {
+      border-right: 0;
+    }
+
+    span:first-child {
+      margin-bottom: 0.2em;
+      color: $gray-33;
+      font-size: 0.6em;
+    }
+
+    &:hover,
+    &:focus,
+    &.active {
+      span:first-child {
+        color: $white;
+      }
+    }
+  }
+}

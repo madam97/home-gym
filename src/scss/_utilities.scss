@@ -3,6 +3,11 @@
 $directions: 'top' 'right' 'bottom' 'left';
 
 // Margin, padding
+@each $dir in $directions {
+  .m#{str-slice($dir,1,1)}-auto { margin-#{$dir}: auto !important; }
+  .p#{str-slice($dir,1,1)}-auto { padding-#{$dir}: auto !important; }
+}
+
 @for $i from 1 through 5 {
   @each $dir in $directions {
     .m#{str-slice($dir,1,1)}-#{$i} { margin-#{$dir}: $i * $gap !important; }
@@ -14,6 +19,20 @@ $directions: 'top' 'right' 'bottom' 'left';
   .px-#{$i} { padding-left: $i * $gap !important; padding-right: $i * $gap !important; }
   .py-#{$i} { padding-top: $i * $gap !important; padding-bottom: $i * $gap !important; }
 }
+
+
+// Floating elements
+.container-float {
+  overflow: auto;
+
+  &>* {
+    display: block;
+    float: left;
+  }
+}
+
+.float-left { float: left !important; }
+.float-right { float: right !important; }
 
 
 
@@ -64,7 +83,39 @@ $directions: 'top' 'right' 'bottom' 'left';
 
 
 // Texts
+.t-center { text-align: center; }
+.t-space-before { padding-left: 0.4em; }
+.t-space-after{ padding-right: 0.4em; }
+
 @for $i from 1 through 5 {
   .para-hidden-#{$i} { overflow: hidden; max-height: 1.2em * $i; }
+}
+
+.f-black { color: $black; }
+.f-smaller { font-size: 1.2em; }
+.f-larger { font-size: 1.4em; }
+
+
+
+// Icons
+svg.icon {
+  width: 20px;
+  height: 20px;
+
+  &,
+  & * {
+    fill: $black;
+  }
+}
+
+svg.icon-green {
+  &,
+  & * {
+    fill: $green;
+  }
+}
+
+@for $i from 1 through 5 {
+  svg.icon-#{$i} { width: 10px + 10px * $i; height: 10px + 10px * $i;  }
 }
 

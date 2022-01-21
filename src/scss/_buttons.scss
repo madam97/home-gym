@@ -1,0 +1,42 @@
+button {
+  cursor: pointer;
+}
+
+.btn {
+  padding: 0.55em 1.55em;
+  border: 1px solid $gray-e5;
+  background: $gray-e5;
+  text-transform: uppercase;
+  font-family: $font-roboto;
+  font-size: 1em;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  border-color: $primary;
+  background: $primary;
+  color: $white;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    border-color: $black;
+    background: $black;
+  }
+}
+
+.btn-outline-black {
+  border: 1px solid $black;
+  background: transparent;
+  color: $black;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    background: $black;
+    color: $white;
+  }
+}

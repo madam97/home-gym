@@ -63,7 +63,7 @@ a {
   color: $gray-33;
   text-decoration: none;
 
-  &:hover,
+  &:hover, 
   &:active,
   &:focus {
     color: $primary;
@@ -76,28 +76,5 @@ a {
   @at-root a#{&} {
     font-weight: 500;
     line-height: $nav-height;
-  }
-}
-
-.btn {
-  cursor: pointer;
-  padding: 0.55em 1.55em;
-  border: 0;
-  text-transform: uppercase;
-  font-family: $font-roboto;
-  font-size: 1em;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.btn-primary {
-  background: $primary;
-  color: $white;
-
-  &:hover,
-  &:focus,
-  &:active,
-  &.active {
-    background: $black;
   }
 }
