@@ -1,4 +1,5 @@
-import { ChangeEventHandler, useState } from 'react';
+import { useState, useEffect } from 'react';
+import Excercise from '../components/Excercise';
 import useFetch from '../hooks/useFetch';
 
 type ExcercisesProps = {
@@ -11,32 +12,46 @@ export default function Excercises({}: ExcercisesProps): JSX.Element {
   const [filterExcerciseType, setFilterExcerciseType] = useState<number>(0);
   const [orderExcercises, setOrderExcercises] = useState<number>(1);
 
-  const { data: excercises, error, loading } = useFetch<IExcercise>('/excercises');
-  const { data: excerciseTypes, error: error2, loading: loading2 } = useFetch<IExcercise>('/excerciseTypes');
+  const { data: excercises } = useFetch<IExcercise[]>('/excercises');
+  const { data: excerciseTypes } = useFetch<IExcerciseType[]>('/excerciseTypes');
 
   const getExcercises = (): IExcercise[] => {
-    // Filter
-    const data = filterExcerciseName === '' && filterExcerciseType === 0 ? excercises.slice() : excercises.filter((item) => {
-      let ok = true;
-      
-      // Filter by name
-      if (filterExcerciseName !== '' && !item.name.match(new RegExp(filterExcerciseName, 'i'))) {
-        ok = false;
-      }
+    console.log(excercises);
 
-      // Filter by excercise type
-      if (ok && filterExcerciseType !== 0 && item.excerciseTypes) {
-        ok = false;
-        for (const type of item.excerciseTypes) {
-          if (type.id === filterExcerciseType) {
-            ok = true;
-            break;
+    if (excercises === null) {
+      return [];
+    }
+
+    let data: IExcercise[] = [];
+
+    // Return all
+    if (filterExcerciseName === '' && filterExcerciseType === 0) {
+      data = excercises.slice();
+    } 
+    // Filter
+    else {
+      data = excercises.filter((item) => {
+        let ok = true;
+        
+        // Filter by name
+        if (filterExcerciseName !== '' && !item.name.match(new RegExp(filterExcerciseName, 'i'))) {
+          ok = false;
+        }
+  
+        // Filter by excercise type
+        if (ok && filterExcerciseType !== 0 && item.excerciseTypes) {
+          ok = false;
+          for (const type of item.excerciseTypes) {
+            if (type.id === filterExcerciseType) {
+              ok = true;
+              break;
+            }
           }
         }
-      }
-       
-      return ok;
-    });
+          
+        return ok;
+      });
+    }
 
     // Order
     const dataSorted = data.sort((a, b) => orderExcercises * a.name.localeCompare(b.name));
@@ -62,7 +77,7 @@ export default function Excercises({}: ExcercisesProps): JSX.Element {
               <select className={`input ${filterExcerciseType !== 0 ? 'active' : ''}`} value={filterExcerciseType} onChange={(event): void => setFilterExcerciseType(parseInt(event.currentTarget.value))}>
                 <option value={0}>All excercise types</option>
 
-                {excerciseTypes.map((item) => (
+                {excerciseTypes && excerciseTypes.map((item) => (
                   <option key={item.id} value={item.id}>{item.name}</option>
                 ))}
               </select>
@@ -80,17 +95,9 @@ export default function Excercises({}: ExcercisesProps): JSX.Element {
 
       <section className="section">
         <div className="row">
-          {getExcercises().map((item) => (
-            <div key={item.id} className="col sm-6 md-4 lg-3">
-              <div className="card">
-                {item.excerciseTypes && 
-                  <p className="subtitle">
-                    {item.excerciseTypes.map((item, index) => `${index > 0 ? ', ' : ''}${item.name}`)}
-                  </p>
-                }
-                <p className="title">{item.name}</p>
-                <p className="para-hidden-3">{item.desc}</p>
-              </div>
+          {getExcercises().map((excercise) => (
+            <div key={excercise.id} className="col sm-6 md-4 lg-3">
+              <Excercise excercise={excercise} />
             </div>
           ))}
         </div>
