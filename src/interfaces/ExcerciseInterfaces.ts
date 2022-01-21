@@ -5,8 +5,8 @@ interface IExcerciseType {
 
 interface IExcercise {
   id: number,
-  excerciseTypeId: number,
   name: string,
   desc: string,
+  useDumbbells: boolean,
   excerciseTypes: IExcerciseType[]
 };
