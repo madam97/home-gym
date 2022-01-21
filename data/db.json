@@ -1,5 +1,5 @@
 {
-  "excerciseTypes" : [
+  "excerciseTypes": [
     {
       "id": 1,
       "name": "Mell"
@@ -21,12 +21,12 @@
       "name": "Has"
     }
   ],
-
-  "excercises" : [
+  "excercises": [
     {
       "id": 1,
       "name": "Fekvőtámasz",
       "desc": "Exercitation anim in dolore anim sunt magna Lorem id tempor non ut aute.",
+      "useDumbbells": false,
       "excerciseTypes": [
         {
           "id": 1,
@@ -42,6 +42,7 @@
       "id": 2,
       "name": "Oldalemelés",
       "desc": "Ullamco nulla quis ullamco esse voluptate et ex minim proident excepteur incididunt eu culpa ex.",
+      "useDumbbells": true,
       "excerciseTypes": [
         {
           "id": 2,
@@ -53,6 +54,7 @@
       "id": 3,
       "name": "Koncentrált bicepsz",
       "desc": "Dolor cupidatat sunt qui tempor fugiat occaecat ea culpa excepteur esse velit voluptate cupidatat incididunt.",
+      "useDumbbells": true,
       "excerciseTypes": [
         {
           "id": 3,
@@ -64,6 +66,7 @@
       "id": 4,
       "name": "Tricepsznyújtás váltott karral",
       "desc": "Adipisicing exercitation incididunt cillum qui adipisicing sit quis veniam aliquip dolor.",
+      "useDumbbells": true,
       "excerciseTypes": [
         {
           "id": 3,
@@ -75,6 +78,7 @@
       "id": 5,
       "name": "Egykezes evezés",
       "desc": "Eu in mollit proident labore voluptate occaecat non deserunt ea ut elit commodo.",
+      "useDumbbells": true,
       "excerciseTypes": [
         {
           "id": 3,
@@ -86,6 +90,7 @@
       "id": 6,
       "name": "Guggolás saját súllyal",
       "desc": "Occaecat mollit pariatur proident ad amet amet dolore veniam cupidatat deserunt.",
+      "useDumbbells": false,
       "excerciseTypes": [
         {
           "id": 4,
@@ -97,6 +102,7 @@
       "id": 7,
       "name": "Vádli állva",
       "desc": "Incididunt culpa laboris non ex fugiat sunt ullamco sint exercitation commodo.",
+      "useDumbbells": false,
       "excerciseTypes": [
         {
           "id": 4,
@@ -108,6 +114,7 @@
       "id": 8,
       "name": "Hasprés",
       "desc": "Mollit ipsum aute sint cillum et sit anim eu do enim amet eiusmod elit.",
+      "useDumbbells": false,
       "excerciseTypes": [
         {
           "id": 5,
@@ -116,70 +123,136 @@
       ]
     }
   ],
-
   "workouts": [
     {
       "id": 1,
       "excerciseId": 1,
-      "setCount": 3,
-      "repetitionCount": 10,
-      "day": 0,
+      "repetitions": [
+        10,
+        10,
+        10
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 1
     },
     {
       "id": 2,
       "excerciseId": 2,
-      "setCount": 3,
-      "repetitionCount": 15,
-      "day": 0,
-      "orderInd": 2
+      "repetitions": [
+        15,
+        15,
+        15
+      ],
+      "completedRepetitions": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
+      "orderInd": 2,
+      "completedRepetition": -1
     },
     {
       "id": 3,
       "excerciseId": 3,
-      "setCount": 3,
-      "repetitionCount": 12,
-      "day": 0,
+      "repetitions": [
+        12,
+        12,
+        12
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 3
     },
     {
       "id": 4,
       "excerciseId": 4,
-      "setCount": 3,
-      "repetitionCount": 12,
-      "day": 0,
+      "repetitions": [
+        12,
+        12,
+        12
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 4
     },
     {
       "id": 5,
       "excerciseId": 5,
-      "setCount": 3,
-      "repetitionCount": 12,
-      "day": 0,
+      "repetitions": [
+        12,
+        12,
+        12
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 1
     },
     {
       "id": 6,
       "excerciseId": 6,
-      "setCount": 3,
-      "repetitionCount": 12,
-      "day": 0,
+      "repetitions": [
+        12,
+        12,
+        12
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 1
     },
     {
       "id": 7,
       "excerciseId": 7,
       "setCount": 3,
-      "repetitionCount": 15,
-      "day": 0,
+      "repetitions": [
+        15,
+        15,
+        15
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 1
     },
     {
       "id": 8,
       "excerciseId": 8,
       "setCount": 3,
-      "repetitionCount": 15,
-      "day": 0,
+      "repetitions": [
+        15,
+        15,
+        15
+      ],
+      "completedRepetition": -1,
+      "days": [
+        1,
+        3,
+        5
+      ],
       "orderInd": 1
     }
   ]
