@@ -1,9 +1,7 @@
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Switch, Route, RouteComponentProps } from 'react-router-dom';
 import Header from './components/Header';
-import Home from './pages/Home';
-import MyWorkout from './pages/MyWorkout';
-import Performance from './pages/Performance';
-import Excercises from './pages/Excercises';
+import routes from './config/routes';
 
 const App = (): JSX.Element => {
   return (
@@ -13,18 +11,17 @@ const App = (): JSX.Element => {
 
         <main>
           <Switch>
-            <Route path="/" exact>
-              <Home />
-            </Route>
-            <Route path="/my-workout">
-              <MyWorkout />
-            </Route>
-            <Route path="/performance">
-              <Performance />
-            </Route>
-            <Route path="/excercises">
-              <Excercises />
-            </Route>
+            {routes.map((route, index): JSX.Element => (
+              <Route 
+                key={index}
+                path={route.path}
+                exact={route.exact}
+              >
+                <route.component
+                  {...route.props}
+                />
+              </Route>
+            ))}
           </Switch>
         </main>
       </div>
