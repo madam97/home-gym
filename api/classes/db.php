@@ -4,6 +4,9 @@ class DB {
   /** @var array $data */
   static $data = [];
 
+
+  // DATABASE FILE METHODS
+
   /**
    * Loads the data from the DB json file
    */
@@ -18,6 +21,9 @@ class DB {
     file_put_contents(DB_FILE, json_encode(self::$data, JSON_PRETTY_PRINT));
   }
 
+
+  // DATABASE METHODS
+
   /**
    * Returs the data from the given table
    * @param string $table
@@ -31,16 +37,18 @@ class DB {
     }
     // Returns every item in the table
     else if ($id <= 0) {
-      self::checkTable($table);
+      self::validateTable($table);
       $ret = self::$data[$table];
 
       // Filter
-      if (!empty($options['filter'])) {
+      if (!empty($options['filters'])) {
+        self::validateCols($table, array_keys($options['filters']));
+        
         foreach ($ret as $i => $row) {
           $ok = true;
-          foreach ($options['filter'] as $col => $value) {
+          foreach ($options['filters'] as $col => $value) {
             if ($row[$col] != $value) {
-              $ok = fals;
+              $ok = false;
               break;
             }
           }
@@ -54,7 +62,7 @@ class DB {
       // Order
       if (!empty($options['sort'])) {
         foreach ($options['sort'] as $col) {
-          self::checkCol($table, $col);
+          self::validateCol($table, $col);
         }
 
         dsort($ret, $options['sort'], isset($options['order']) ? $options['order'] : []);
@@ -63,9 +71,9 @@ class DB {
       // Get childrens - expand param
       if (!empty($options['expand'])) {
         foreach ($options['expand'] as $expand) {
-          $expand_table = self::checkTable($expand, true);
+          $expand_table = self::validateTable($expand, true);
           $expand_col_id = $expand.'Id';
-          self::checkCol($table, $expand_col_id);
+          self::validateCol($table, $expand_col_id);
 
           foreach ($ret as &$row) {
             $row[$expand] = self::get($expand_table, $row[$expand_col_id]);
@@ -75,17 +83,17 @@ class DB {
     }
     // Returns an item in the table
     else {
-      self::checkTable($table);
+      self::validateTable($table);
 
-      $i = self::checkId($table, $id);
+      $i = self::validateId($table, $id);
       $ret = self::$data[$table][$i];
 
       // Get childrens - expand param
       if (!empty($options['expand'])) {
         foreach ($options['expand'] as $expand) {
-          $expand_table = self::checkTable($expand, true);
+          $expand_table = self::validateTable($expand, true);
           $expand_col_id = $expand.'Id';
-          self::checkCol($table, $expand_col_id);
+          self::validateCol($table, $expand_col_id);
 
           $ret[$expand] = self::get($expand_table, $ret[$expand_col_id]);
         }
@@ -93,6 +101,39 @@ class DB {
     }
 
     return $ret;
+  }
+
+  /**
+   * Inserts the given data and returns it
+   * @param string $table
+   * @param array $data
+   * @return array
+   */
+  public static function insert($table, $data) {
+    // Get first element of the table
+    self::validateTable($table);
+    $saved_data = end(self::$data[$table]);
+
+    if ($saved_data === false) {
+      throw new \Exception("'$table' table is empty, not able to insert new data");
+    }
+
+    // Remove unnecessary data, set id
+    $data = array_intersect_key($data, $saved_data);
+
+    if (empty($data['id'])) {
+      $data['id'] = $saved_data['id'] + 1;
+    }
+
+    // Validation
+    self::validateId($table, $data['id'], true);
+    self::validateChildren($data);
+
+    // Save data
+    self::$data[$table][] = $data;
+    self::save();
+
+    return $data;
   }
 
   /**
@@ -106,35 +147,55 @@ class DB {
     // Get saved data
     $saved_data = DB::get($table, $id);
 
-    // Remove unnecessary data
+    // Remove unnecessary data, set id
     $data = array_merge($saved_data, array_intersect_key($data, $saved_data));
     $data['id'] = $saved_data['id'];
 
-    // Check if given children are valid
-    foreach ($data as $col => $value) {
-      if (preg_match('/Id$/', $col)) {
-        self::checkId(self::checkTable(preg_replace('/Id$/', '', $col), true), $value);
-      }
-    }
+    // Validation
+    self::validateChildren($data);
 
-    // Update data
-    $i = self::checkId($table, $id);
+    // Save data
+    $i = self::validateId($table, $id);
     self::$data[$table][$i] = $data;
-
     self::save();
 
     return $data;
   }
 
   /**
-   * Checks if the given table is exists, if not, throws an error
+   * Deletes the given element from the table and returns its data
+   * @param string $table
+   * @param int $id
+   * @return array
+   */
+  public static function delete($table, $id) {
+    // Get saved data
+    $i = self::validateId($table, $id);
+    $saved_data = self::$data[$table][$i];
+
+    // Validation
+    self::validateParent($table, $id);
+
+    // Save data
+    unset(self::$data[$table][$i]);
+    self::save();
+
+    return $saved_data;
+  }
+
+
+
+  /// VALIDATION 
+
+  /**
+   * If the given table does not exist it will throw an error
    * @param string $table
    * @param boolean $check_plural If true, it will checks the given table's plural version (like post -> posts)
    * @throws \Exception
    */
-  private static function checkTable($table, $check_plural = false) {
+  private static function validateTable($table, $check_plural = false) {
     if ($check_plural) {
-      $regex = '/'.$table.'(s$|es$)/';
+      $regex = self::getTableRegex($table);
       $tables = array_keys(self::$data);
       sort($tables);
       $found_table = null;
@@ -156,27 +217,40 @@ class DB {
   }
 
   /**
-   * Checks if the given column is in the table, if not, throws an error
+   * If the given column is not in table it will throw an error
    * @param string $table
    * @param string $col
    * @throws \Exception
    */
-  private static function checkCol($table, $col) {
-    $row = array_shift(array_values(self::$data[$table]));
+  private static function validateCol($table, $col) {
+    self::validateCols($table, [$col]);
+  }
 
-    if (!isset($row[$col])) {
-      throw new \Exception("'$col' column is missing from '$table'");
+  /**
+   * If the given columns are not in table it will throw an error
+   * @param string $table
+   * @param array $cols
+   * @throws \Exception
+   */
+  private static function validateCols($table, $cols) {
+    if ($invalid_cols = array_diff($cols, array_keys(end(self::$data[$table])))) {
+      if (count($invalid_cols) === 1) {
+        throw new \Exception("'{$invalid_cols[0]}' column is missing from '$table'");
+      } else {
+        throw new \Exception("'".implode("', '", $invalid_cols)."' columns are missing from '$table'");
+      }
     }
   }
 
   /**
-   * Checks if the given id is used in the table, if not, throws an error, otherwise gives back the element's index in the table's array
+   * If the given id is used/not used in the table it will throw an error, otherwise gives back the element's index in the table's array
    * @param string $table
    * @param int $id
+   * @param boolean $error_when_exis If true, it will throw error when the id is used in the table
    * @return int
    * @throws \Exception
    */
-  private static function checkId($table, $id) {
+  private static function validateId($table, $id, $error_when_used = false) {
     $ret = null;
 
     foreach (self::$data[$table] as $i => $row) {
@@ -186,10 +260,113 @@ class DB {
       }
     }
 
-    if (is_null($ret)) {
-      throw new \Exception("'$id' id is not in '$table'");
+    if (!$error_when_used && is_null($ret)) {
+      throw new \Exception("'$id' id is not used in '$table'");
+    } else if ($error_when_used && !is_null($ret)) {
+      throw new \Exception("'$id' id is used in '$table'");
     }
 
     return $ret;
+  }
+
+  /**
+   * If the given data has children ids and they are not used in tables it will throw an error
+   * @param array $data
+   * @throws \Exception
+   */
+  private static function validateChildren($data) {
+    foreach ($data as $col => $value) {
+      if ($element = self::getElementFromIdCol($col)) {
+        self::validateId(self::validateTable($element, true), $value);
+      }
+    }
+  }
+
+  /**
+   * If the given element's id is used by another element it will throw an error
+   * @param string $table
+   * @param int $id
+   * @throws \Exception
+   */
+  private static function validateParent($table, $id) {
+    $regex = self::getIdColRegex($table);
+    $id_col_of_table = null;
+
+    foreach (self::$data as $t => $d) {
+      $row = end($d);
+
+      // Get the id column of the table (like postId is the id column of posts table)
+      if (is_null($id_col_of_table)) {
+        foreach ($row as $col => $value) {
+          if (preg_match($regex, $col)) {
+            $id_col_of_table = $col;
+            break;
+          }
+        }
+      }
+
+      // Check if the given id is used
+      if (isset($row[$id_col_of_table])) {
+        foreach ($d as $row) {
+          if ($row[$id_col_of_table] == $id) {
+            throw new \Exception("not able to delete '$id' from '$table' because '{$row['id']}' in '$t' is using it");
+          }
+        }
+      }
+    }
+  }
+
+
+  /// HELPER METHODS
+
+  /**
+   * Returns the table's regex of the given element like post -> /post(s$|es$)/
+   * @param string $element
+   * @return string
+   */
+  private static function getTableRegex($element) {
+    // like reply -> replies
+    if (preg_match('/y$/', $element)) {
+      $element = preg_replace('/y$/', 'i', $element);
+    }
+    // like wife -> wifes
+    else if (preg_match('/f$/', $element)) {
+      $element = preg_replace('/f$/', 'v', $element);
+    }
+
+    return '/'.$element.'(s$|es$)/';
+  }
+
+  /**
+   * Returns the id column's regex of the given table like posts -> /postId$/
+   * @param string $table
+   * @return string
+   */
+  private static function getIdColRegex($table) {
+    // replies -> /repl(y|i|ie)Id$/ -> reply
+    if (preg_match('/ies$/', $table)) {
+      return '/'.preg_replace('/ies$/', '', $table).'(y|i|ie)Id$/';
+    }
+    // wives -> /wi(f|fe|v|ve)Id$/ -> wife
+    else if (preg_match('/ves$/', $table)) {
+      return '/'.preg_replace('/ves$/', '', $table).'(f|fe|v|ve)Id$/';
+    }
+    // bushes -> /bushe?Id$/ -> bush
+    else if (preg_match('/es$/', $table)) {
+      return '/'.preg_replace('/es$/', '', $table).'e?Id$/';
+    }
+    // posts -> /postId$/ -> post
+    else {
+      return '/'.preg_replace('/s$/', '', $table).'Id$/';
+    }
+  }
+
+  /**
+   * Returns the element name from the given id column
+   * @param string $col
+   * @return string|null
+   */
+  private static function getElementFromIdCol($col) {
+    return preg_match('/Id$/', $col) ? preg_replace('/Id$/', '', $col) : null;
   }
 }
