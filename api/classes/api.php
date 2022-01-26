@@ -84,12 +84,11 @@ class API {
    * Runs a POST method's process
    */
   private function processPOST() {
-    if ($this->count_uri !== 2) {
-      throw new \Exception('only element and id is required');
+    if ($this->count_uri !== 1) {
+      throw new \Exception('element is required');
     }
 
-    echo 'TODO';
-    exit();
+    $this->sendOk(DB::insert($this->uri[0], $this->getBody()));
   }
 
   /**
@@ -98,7 +97,7 @@ class API {
    */
   private function processPUT() {
     if ($this->count_uri !== 2) {
-      throw new \Exception('only element and id is required');
+      throw new \Exception('element and id is required');
     }
 
     $this->sendOk(DB::update($this->uri[0], $this->uri[1], $this->getBody()));
@@ -115,8 +114,11 @@ class API {
    * Runs a DELETE method's process
    */
   private function processDELETE() {
-    echo 'TODO';
-    exit();
+    if ($this->count_uri !== 2) {
+      throw new \Exception('element and id is required');
+    }
+
+    $this->sendOk(DB::delete($this->uri[0], $this->uri[1]));
   }
 
   /**
