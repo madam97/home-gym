@@ -3,16 +3,13 @@ import moment from 'moment';
 import Days from '../components/Days';
 import useFetch from '../hooks/useFetch';
 import Workout from '../components/Workout';
+import { Link } from 'react-router-dom';
 
-type MyWorkoutProps = {
-  
-}
-
-export default function MyWorkout({}: MyWorkoutProps): JSX.Element {
+export default function MyWorkout(): JSX.Element {
 
   const [activeDay, setActiveDay] = useState<number>(moment().isoWeekday());
 
-  const { data: workouts, error, loading } = useFetch<IWorkout[]>('/workouts?_expand=excercise');
+  const { data: workouts, loading } = useFetch<IWorkout[]>('/workouts?_expand[]=excercise&_expand[]=weightType');
 
   /**
    * Gets the workouts of the active day
@@ -23,7 +20,7 @@ export default function MyWorkout({}: MyWorkoutProps): JSX.Element {
 
     if (workouts) {
       for (const workout of workouts) {
-        if (workout.days.includes(activeDay)) {
+        if (workout.day === activeDay) {
           workoutsOfDay.push(workout);
         }
       }
@@ -42,8 +39,9 @@ export default function MyWorkout({}: MyWorkoutProps): JSX.Element {
 
   return (
     <>
-      <section className="section">
+      <section className="section flex-block">
         <h1>My workout plan</h1>
+        <Link className="btn btn-primary ml-auto" to={`/my-workout/edit-day-${activeDay}`}>Edit day</Link>
       </section>
 
       <section className="section mb-2">
