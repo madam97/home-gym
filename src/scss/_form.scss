@@ -16,6 +16,69 @@
   }
 }
 
+input.input-number-hide-arrows {
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  & {
+    -moz-appearance: textfield;
+  }
+}
+
+@for $i from 1 through 10 {
+  .input-char-#{$i} { width: 1.1em + 0.625em * $i; }
+}
+
+.input-block {
+  display: flex;
+
+  &:not(:last-child) {
+    margin: 0 0 $gap 0;
+  }
+
+  &.input-block-btn-left .input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  &.input-block-btn-right .input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  &.input-block-btn-both .input {
+    border-radius: 0;
+  }
+}
+
+.input-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.5em;
+  border: 1px solid $gray-c1;
+  background: $gray-e5;
+
+  &:not(.input-btn-rounded):first-child {
+    border-right: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  &:not(.input-btn-rounded):last-child {
+    border-left: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  &.input-btn-rounded {
+    border: 1px solid $gray-c1;
+    border-radius: 5px;
+  }
+}
+
 .btn-form {
   width: 100%;
   border-radius: 5px;

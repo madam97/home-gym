@@ -2,7 +2,11 @@
 
 $directions: 'top' 'right' 'bottom' 'left';
 
-// Margin, padding
+// Width, height, margin, padding
+@for $i from 1 through 4 {
+  .w-#{$i * 25} { width: 25% * $i;  }
+}
+
 @each $dir in $directions {
   .m#{str-slice($dir,1,1)}-auto { margin-#{$dir}: auto !important; }
   .p#{str-slice($dir,1,1)}-auto { padding-#{$dir}: auto !important; }
@@ -21,19 +25,16 @@ $directions: 'top' 'right' 'bottom' 'left';
 }
 
 
-// Floating elements
-.container-float {
-  overflow: auto;
+
+// Flex elements
+.flex-block {
+  display: flex;
+  align-items: center;
 
   &>* {
     display: block;
-    float: left;
   }
 }
-
-.float-left { float: left !important; }
-.float-right { float: right !important; }
-
 
 
 // Responsive elements
@@ -73,7 +74,7 @@ $directions: 'top' 'right' 'bottom' 'left';
 
 // Backgrounds
 
-.bg-gray { background: $gray-e5; }
+.bg-gray { background: $gray-f1; }
 
 // Borders
 @each $dir in $directions {
@@ -84,8 +85,9 @@ $directions: 'top' 'right' 'bottom' 'left';
 
 // Texts
 .t-center { text-align: center; }
-.t-space-before { padding-left: 0.4em; }
-.t-space-after{ padding-right: 0.4em; }
+.t-space-before { margin-left: 0.4em; }
+.t-space-after { margin-right: 0.4em; }
+.t-space-around { margin-left: 0.4em; margin-right: 0.4em; }
 
 @for $i from 1 through 5 {
   .para-hidden-#{$i} { overflow: hidden; max-height: 1.2em * $i; }
