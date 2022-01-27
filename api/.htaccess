@@ -1,4 +1,10 @@
 RewriteEngine on
+RewriteCond %{HTTP_HOST} ^localhost$ [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /api/index.php?path=$1 [NC,L,QSA]
+
+RewriteCond %{HTTP_HOST} !^localhost$ [NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /home-gym/api/index.php?path=$1 [NC,L,QSA]
