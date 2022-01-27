@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
 type TUseFetch<T> = {
-  data: T | null,
-  error: string | null,
+  data: T | undefined,
+  error: string | undefined,
   loading: boolean,
   runFetch(body?: object, abortController?: AbortController): void
 };
@@ -10,8 +10,8 @@ type TUseFetch<T> = {
 export default function useFetch<T>(url: string, method: string = 'GET'): TUseFetch<T> {
 
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<T | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
 
   /**
@@ -62,7 +62,7 @@ export default function useFetch<T>(url: string, method: string = 'GET'): TUseFe
       try {
         const data = await fetchData(); 
         setData(data);
-        setError(null);
+        setError(undefined);
         setLoading(false);
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
