@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Excercise from '../components/Excercise';
 import useFetch from '../hooks/useFetch';
 
@@ -16,9 +16,7 @@ export default function Excercises({}: ExcercisesProps): JSX.Element {
   const { data: excerciseTypes } = useFetch<IExcerciseType[]>('/excerciseTypes');
 
   const getExcercises = (): IExcercise[] => {
-    console.log(excercises);
-
-    if (excercises === null) {
+    if (excercises === undefined) {
       return [];
     }
 
