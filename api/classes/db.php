@@ -118,12 +118,12 @@ class DB {
       throw new \Exception("'$table' table is empty, not able to insert new data");
     }
 
-    // Remove unnecessary data, set id
+    // Remove unnecessary data, set id, order values
     $data = array_intersect_key($data, $saved_data);
-
     if (empty($data['id'])) {
       $data['id'] = $saved_data['id'] + 1;
     }
+    $data = array_merge($saved_data, $data);
 
     // Validation
     self::validateId($table, $data['id'], true);
@@ -147,9 +147,10 @@ class DB {
     // Get saved data
     $saved_data = DB::get($table, $id);
 
-    // Remove unnecessary data, set id
+    // Remove unnecessary data, set id, order values
     $data = array_merge($saved_data, array_intersect_key($data, $saved_data));
     $data['id'] = $saved_data['id'];
+    $data = array_merge($saved_data, $data);
 
     // Validation
     self::validateChildren($data);
