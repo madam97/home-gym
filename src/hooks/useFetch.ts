@@ -4,7 +4,7 @@ type TUseFetch<T> = {
   data: T | undefined,
   error: string | undefined,
   loading: boolean,
-  runFetch(body?: object, abortController?: AbortController): void
+  runFetch(body?: object, callback?: Function): void
 };
 
 export default function useFetch<T>(url: string, method: string = 'GET'): TUseFetch<T> {
@@ -16,9 +16,10 @@ export default function useFetch<T>(url: string, method: string = 'GET'): TUseFe
 
   /**
    * Runs the fetch request, used to run POST, PUT, PATCH and DELETE requests
-   * @param {object} body
+   * @param body
+   * @param callback
    */
-  const runFetch = useCallback((body?: object): void => {
+  const runFetch = useCallback((body?: object, callback?: Function): void => {
     /**
      * Asks down the data using the API url
      * @returns 
@@ -72,6 +73,10 @@ export default function useFetch<T>(url: string, method: string = 'GET'): TUseFe
             setError(err.message);
           }
           setLoading(false);
+        }
+      } finally {
+        if (callback) {
+          callback();
         }
       }
     }
