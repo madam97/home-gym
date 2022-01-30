@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useFetch from '../hooks/useFetch';
 import Workout from '../components/Workout';
@@ -11,12 +11,33 @@ type MyWorkoutEditParams = {
 export default function MyWorkoutEdit(): JSX.Element {
 
   const { day } = useParams<MyWorkoutEditParams>();
-
-  const [editedWorkoutIndex, setEditedWorkoutIndex] = useState<number>(-1);
   
   const { data: excercises } = useFetch<IExcercise[]>(`/excercises/`);
   const { data: weightTypes } = useFetch<IWeightType[]>(`/weightTypes/`);
-  const { data: workouts, loading } = useFetch<IWorkout[]>(`/workouts?day=${day}&_sort=orderInd&_expand[]=excercise&_expand[]=weightType`);
+  const { data: workoutsTmp, loading } = useFetch<IWorkout[]>(`/workouts?day=${day}&_sort=orderInd&_expand[]=excercise&_expand[]=weightType`);
+
+  const [workouts, setWorkouts] = useState<IWorkout[]>();
+  const [editedWorkoutIndex, setEditedWorkoutIndex] = useState<number>(-1);
+
+  useEffect(() => {
+    setWorkouts(workoutsTmp);
+  }, [workoutsTmp]);
+
+  /**
+   * Updates the given workout data
+   * @param index 
+   * @param newWorkout
+   */
+  const updateWorkout = (index: number, newWorkoutData: object): void => {
+    if (workouts) {
+      const newWorkouts = workouts.slice();
+      newWorkouts[index] = {
+        ...newWorkouts[index],
+        ...newWorkoutData
+      };
+      setWorkouts(newWorkouts);
+    }
+  }
 
   // -------------------------------------------
 
@@ -34,9 +55,10 @@ export default function MyWorkoutEdit(): JSX.Element {
                 {editedWorkoutIndex === index && 
                   <WorkoutEdit 
                     index={index} 
-                    workoutProp={workout}
+                    workout={workout}
                     excercises={excercises} 
                     weightTypes={weightTypes} 
+                    updateWorkout={updateWorkout} 
                     setEditedWorkoutIndex={setEditedWorkoutIndex} 
                   />
                 }

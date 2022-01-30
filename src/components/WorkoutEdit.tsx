@@ -1,27 +1,28 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import useFetch from '../hooks/useFetch';
 
 type WorkoutEditProps = {
   index: number
-  workoutProp: IWorkout,
+  workout: IWorkout,
   excercises?: IExcercise[],
   weightTypes?: IWeightType[],
-  setEditedWorkoutIndex(editedWorkoutIndex: number): void
+  updateWorkout(index: number, newWorkoutData: object): void,
+  setEditedWorkoutIndex: (editedWorkoutIndex: number) => void
 };
 
-export default function WorkoutEdit({ index, workoutProp, excercises, weightTypes, setEditedWorkoutIndex }: WorkoutEditProps): JSX.Element {
-
-  const [workout, setWorkout] = useState<IWorkout>(workoutProp);
+export default function WorkoutEdit({ index, workout, excercises, weightTypes, updateWorkout, setEditedWorkoutIndex }: WorkoutEditProps): JSX.Element {
 
   const [excercise, setExcercise] = useState<IExcercise | undefined>();
   const [weightType, setWeightType] = useState<IWeightType | undefined>();
-  const [weight, setWeight] = useState<number | undefined>();
+  const [weight, setWeight] = useState<number | string>('');
   const [repetitions, setRepetitions] = useState<number[]>([]);
 
   const [excerciseName, setExcerciseName] = useState<string>('');
   const [weightTypeName, setWeightTypeName] = useState<string>('');
 
+  const { runFetch } = useFetch<IWorkout>(`/workouts/${workout.id}`, 'PATCH');
+
   useEffect((): void => {
-    console.log('run useEffect');
     setExcercise(workout.excercise);
     setWeightType(workout.weightType);
     setWeight(workout.weight);
@@ -29,7 +30,7 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
 
     setExcerciseName(workout.excercise ? workout.excercise.name : '');
     setWeightTypeName(workout.weightType ? workout.weightType.name : '');
-  }, [workout, setWorkout]);
+  }, [workout]);
 
   /**
    * Saves the workout data
@@ -38,26 +39,19 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
   const saveWorkout = (event: React.FormEvent<HTMLFormElement | HTMLButtonElement>): void => {
     event.preventDefault();
 
-    console.log('saveWorkout', {
-      ...workout,
+    const newWorkoutData = {
       excercise,
       weightType,
-      weight: weight ? weight : 0,
+      weight: typeof weight !== 'string' && weight >= 0 ? weight : 0,
       repetitions,
       completedRepetition: workout.repetitions.length !== repetitions.length ? -1 : workout.completedRepetition
+    };
+
+    runFetch(newWorkoutData, () => {
+      setEditedWorkoutIndex(-1);
     });
 
-    /*
-    setWorkout((prevWorkout) => ({
-      ...prevWorkout,
-      excercise,
-      weightType,
-      weight: weight ? weight : 0,
-      repetitions,
-      completedRepetition: prevWorkout.repetitions.length !== repetitions.length ? -1 : prevWorkout.completedRepetition
-    }));*/
-
-    setEditedWorkoutIndex(-1);
+    updateWorkout(index, newWorkoutData);
   }
 
   /**
@@ -107,7 +101,7 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
    * @param weight 
    */
   const changeWeight = (weight: number): void => {
-    setWeight(weight >= 0 ? weight : undefined);
+    setWeight(weight >= 0 && typeof weight !== 'string' ? weight : '');
   }
 
   /**
@@ -121,7 +115,9 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
     setRepetitions(newRepetitions);
   }
 
-  const addRepetition = (): void => {
+  const addRepetition = (event: React.FormEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+
     const newRepetitions: number[] = repetitions.slice();
 
     if (newRepetitions.length <= 10) {
@@ -131,7 +127,9 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
     }
   }
 
-  const removeRepetition = (): void => {
+  const removeRepetition = (event: React.FormEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+
     const newRepetitions: number[] = repetitions.slice();
 
     if (newRepetitions.length > 1) {
@@ -195,7 +193,7 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
 
       {/* Repetitions */}
       <div className="input-block">
-        <button className="input-btn input-btn-rounded" onClick={removeRepetition}>-</button>
+        <button className="input-btn input-btn-rounded" onClick={(event) => removeRepetition(event)}>-</button>
 
         <div className="chart-line w-100 mx-1">
           {repetitions.map((repetition, i) => (
@@ -216,7 +214,7 @@ export default function WorkoutEdit({ index, workoutProp, excercises, weightType
           ))}
         </div>
         
-        <button className="input-btn input-btn-rounded" onClick={addRepetition}>+</button>
+        <button className="input-btn input-btn-rounded" onClick={(event) => addRepetition(event)}>+</button>
       </div>
 
       {/* Save button */}
