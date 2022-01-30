@@ -23,12 +23,12 @@ export default function Workout({ index, workoutProp, showEditBtn = false, setEd
     if (!showEditBtn) {
       const completedRepetition = workout.completedRepetition === repetitionIndex ? repetitionIndex-1 : repetitionIndex;
   
+      runFetch({ completedRepetition });
+  
       setWorkout((prevWorkout) => ({
         ...prevWorkout,
         completedRepetition
       }));
-  
-      runFetch({ completedRepetition });
     }
   }
 
