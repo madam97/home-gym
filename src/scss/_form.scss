@@ -14,6 +14,10 @@
     border-color: $primary;
     box-shadow: 0 0 0 3px fade-out($primary, 0.75);
   }
+
+  .input-row.input-row-error & {
+    border-color: $red;
+  }
 }
 
 input.input-number-hide-arrows {
@@ -34,12 +38,14 @@ input.input-number-hide-arrows {
   .input-char-#{$i} { width: 1.1em + 0.625em * $i; }
 }
 
-.input-block {
-  display: flex;
-
+.input-row {
   &:not(:last-child) {
     margin: 0 0 $gap 0;
   }
+}
+
+.input-block {
+  display: flex;
 
   &.input-block-btn-left .input {
     border-top-left-radius: 0;
@@ -82,4 +88,13 @@ input.input-number-hide-arrows {
 .btn-form {
   width: 100%;
   border-radius: 5px;
+}
+
+.input-message {
+  margin: 0.5em 0 0 0;
+  font-size: 0.8em;
+
+  .input-row.input-row-error & {
+    color: $red;
+  }
 }

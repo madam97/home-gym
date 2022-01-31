@@ -24,6 +24,7 @@ button {
   &.active {
     border-color: $black;
     background: $black;
+    color: $white;
   }
 }
 
