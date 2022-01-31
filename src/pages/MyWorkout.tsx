@@ -9,7 +9,7 @@ export default function MyWorkout(): JSX.Element {
 
   const [activeDay, setActiveDay] = useState<number>(moment().isoWeekday());
 
-  const { data: workouts, loading } = useFetch<IWorkout[]>('/workouts?_expand[]=excercise&_expand[]=weightType');
+  const { data: workouts, loading } = useFetch<IWorkout[]>({url: '/workouts?_expand[]=excercise&_expand[]=weightType'});
 
   /**
    * Gets the workouts of the active day

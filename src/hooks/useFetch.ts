@@ -1,13 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
 
+type RunFetchParams = {
+  method: string,
+  url: string, 
+  body?: object, 
+  callback?: Function
+};
+
+type UseFetchProps = {
+  url?: string,
+  method?: string
+};
+
 type TUseFetch<T> = {
   data: T | undefined,
   error: string | undefined,
   loading: boolean,
-  runFetch(body?: object, callback?: Function): void
+  runFetch({ method, url, body, callback}: RunFetchParams): void
 };
 
-export default function useFetch<T>(url: string, method: string = 'GET'): TUseFetch<T> {
+export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): TUseFetch<T> {
 
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
   const [data, setData] = useState<T | undefined>(undefined);
@@ -16,10 +28,12 @@ export default function useFetch<T>(url: string, method: string = 'GET'): TUseFe
 
   /**
    * Runs the fetch request, used to run POST, PUT, PATCH and DELETE requests
+   * @param method
+   * @param url
    * @param body
    * @param callback
    */
-  const runFetch = useCallback((body?: object, callback?: Function): void => {
+  const runFetch = useCallback(({ method, url, body, callback}: RunFetchParams): void => {
     /**
      * Asks down the data using the API url
      * @returns 
@@ -90,8 +104,8 @@ export default function useFetch<T>(url: string, method: string = 'GET'): TUseFe
 
   // Auto run GET fetches
   useEffect(() => {
-    if (method === 'GET') {
-      runFetch();
+    if (method === 'GET' && url) {
+      runFetch({ method, url });
       return () => abortController.abort();
     }
   }, [abortController, url, method]);

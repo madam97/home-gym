@@ -6,29 +6,34 @@ type WorkoutProps = {
   index: number,
   workoutProp: IWorkout,
   showEditBtn?: boolean,
-  setEditedWorkoutIndex?: (editedWorkoutIndex: number) => void
+  showUpdateForm?: (index: number) => void
 };
 
-export default function Workout({ index, workoutProp, showEditBtn = false, setEditedWorkoutIndex }: WorkoutProps): JSX.Element {
+export default function Workout({ index, workoutProp, showEditBtn = false, showUpdateForm}: WorkoutProps): JSX.Element {
 
   const [workout, setWorkout] = useState<IWorkout>(workoutProp);
 
-  const { runFetch } = useFetch<IWorkout>(`/workouts/${workout.id}`, 'PATCH');
+  const { runFetch } = useFetch<IWorkout>({});
 
+  
   /**
-   * Sets the last completed repetition's index
+   * Sets the last completed repetition's index of the workout
    * @param repetitionIndex 
    */
-  const setCompletedRepetition = (repetitionIndex: number): void => {
+   const setCompletedRepetition = (repetitionIndex: number): void => {
     if (!showEditBtn) {
       const completedRepetition = workout.completedRepetition === repetitionIndex ? repetitionIndex-1 : repetitionIndex;
-  
-      runFetch({ completedRepetition });
   
       setWorkout((prevWorkout) => ({
         ...prevWorkout,
         completedRepetition
       }));
+  
+      runFetch({ 
+        method: 'PATCH', 
+        url: `/workouts/${workout.id}`, 
+        body: { completedRepetition }
+      });
     }
   }
 
@@ -91,9 +96,9 @@ export default function Workout({ index, workoutProp, showEditBtn = false, setEd
           </div>
 
           {/* Edit button */}
-          {showEditBtn && setEditedWorkoutIndex &&
+          {showEditBtn && showUpdateForm &&
             <div className="mt-2 t-center">
-              <button className="btn btn-primary" onClick={() => setEditedWorkoutIndex(index)}>Edit</button>
+              <button className="btn btn-primary" onClick={() => showUpdateForm(index)}>Edit</button>
             </div>
           }
         </>

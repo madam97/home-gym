@@ -12,8 +12,8 @@ export default function Excercises({}: ExcercisesProps): JSX.Element {
   const [filterExcerciseType, setFilterExcerciseType] = useState<number>(0);
   const [orderExcercises, setOrderExcercises] = useState<number>(1);
 
-  const { data: excercises } = useFetch<IExcercise[]>('/excercises');
-  const { data: excerciseTypes } = useFetch<IExcerciseType[]>('/excerciseTypes');
+  const { data: excercises } = useFetch<IExcercise[]>({url: '/excercises'});
+  const { data: excerciseTypes } = useFetch<IExcerciseType[]>({url: '/excerciseTypes'});
 
   const getExcercises = (): IExcercise[] => {
     if (excercises === undefined) {
