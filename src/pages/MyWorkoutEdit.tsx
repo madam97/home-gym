@@ -2,33 +2,67 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useFetch from '../hooks/useFetch';
 import Workout from '../components/Workout';
-import WorkoutEdit from '../components/WorkoutEdit';
+import WorkoutFrom from '../components/WorkoutForm';
 
-type MyWorkoutEditParams = {
+type MyWorkoutFromParams = {
   day: string
 };
 
-export default function MyWorkoutEdit(): JSX.Element {
+export default function MyWorkoutFrom(): JSX.Element {
 
-  const { day } = useParams<MyWorkoutEditParams>();
+  const { day } = useParams<MyWorkoutFromParams>();
+  const [shownInsertForm, setShownInsertForm] = useState<boolean>(false);
+  const [editedWorkoutIndex, setEditedWorkoutIndex] = useState<number>(-1);
   
-  const { data: excercises } = useFetch<IExcercise[]>(`/excercises/`);
-  const { data: weightTypes } = useFetch<IWeightType[]>(`/weightTypes/`);
-  const { data: workoutsTmp, loading } = useFetch<IWorkout[]>(`/workouts?day=${day}&_sort=orderInd&_expand[]=excercise&_expand[]=weightType`);
+  const { data: excercises } = useFetch<IExcercise[]>({url: '/excercises'});
+  const { data: weightTypes } = useFetch<IWeightType[]>({url: '/weightTypes'});
+  const { data: workoutsTmp, loading } = useFetch<IWorkout[]>({url: `/workouts?day=${day}&_sort=orderInd&_expand[]=excercise&_expand[]=weightType`});
+  const { runFetch } = useFetch<IWorkout>({});
 
   const [workouts, setWorkouts] = useState<IWorkout[]>();
-  const [editedWorkoutIndex, setEditedWorkoutIndex] = useState<number>(-1);
 
   useEffect(() => {
     setWorkouts(workoutsTmp);
   }, [workoutsTmp]);
 
   /**
+   * Inserts the given workout
+   * @param workout 
+   */
+  const insertWorkout = (newWorkoutData: Record<string,any>): void => {
+    const workout: IWorkout = {
+      id: 0,
+      excerciseId: newWorkoutData.excerciseId,
+      excercise: newWorkoutData.excercise,
+      weightTypeId: newWorkoutData.weightTypeId,
+      weightType: newWorkoutData.weightType,
+      weight: newWorkoutData.weight,
+      repetitions: newWorkoutData.repetitions,
+      completedRepetition: -1,
+      day: parseInt(day),
+      orderInd: workouts ? workouts.length : 1
+    };
+
+    const newWorkouts = workouts ? workouts.slice() : [];
+    newWorkouts.push(workout);
+    setWorkouts(newWorkouts);
+    
+    runFetch({
+      method: 'POST',
+      url: '/workouts',
+      body: newWorkoutData, 
+      callback: () => {
+        showUpdateForm(newWorkouts.length - 1);
+      }
+    });
+  }
+
+  /**
    * Updates the given workout data
    * @param index 
    * @param newWorkout
    */
-  const updateWorkout = (index: number, newWorkoutData: object): void => {
+  const updateWorkout = (index: number, newWorkoutData: Record<string,any>): void => {
     if (workouts) {
       const newWorkouts = workouts.slice();
       newWorkouts[index] = {
@@ -37,29 +71,64 @@ export default function MyWorkoutEdit(): JSX.Element {
       };
       setWorkouts(newWorkouts);
     }
+
+    runFetch({
+      method: 'PATCH',
+      url: `/workouts/${newWorkoutData.id}`,
+      body: newWorkoutData, 
+      callback: () => {
+        showUpdateForm(-1);
+      }
+    });
+  }
+
+  const showInsertForm = (): void => {
+    setShownInsertForm(true);
+    setEditedWorkoutIndex(-1);
+  }
+
+  /**
+   * Hides the add new workout form and shows the edit form of the given workout
+   * @param index
+   */
+  const showUpdateForm = (index: number): void => {
+    setShownInsertForm(false);
+    setEditedWorkoutIndex(index);
   }
 
   // -------------------------------------------
 
   return (
     <>
-      <section className="section">
+      <section className="section flex-block">
         <h1>Edit my workout day {day}</h1>
+        {!shownInsertForm && <button className="btn btn-primary ml-auto" onClick={showInsertForm}>Add new workout</button>}
       </section>
 
+      {/* Add new workout block */}
+      {shownInsertForm && 
+        <section className="section mb-5">
+          <WorkoutFrom 
+            excercises={excercises} 
+            weightTypes={weightTypes} 
+            insertWorkout={insertWorkout} 
+          />
+        </section>
+      }
+
+      {/* Edit workouts list */}
       {!loading && workouts && workouts.length > 0 && 
         <section className="section">
           <div className="row">
             {workouts.map((workout, index) => (
               <div key={workout.id} className="col">
                 {editedWorkoutIndex === index && 
-                  <WorkoutEdit 
+                  <WorkoutFrom 
                     index={index} 
                     workout={workout}
                     excercises={excercises} 
                     weightTypes={weightTypes} 
                     updateWorkout={updateWorkout} 
-                    setEditedWorkoutIndex={setEditedWorkoutIndex} 
                   />
                 }
                 {editedWorkoutIndex !== index && 
@@ -67,7 +136,6 @@ export default function MyWorkoutEdit(): JSX.Element {
                     index={index} 
                     workoutProp={workout} 
                     showEditBtn={true} 
-                    setEditedWorkoutIndex={setEditedWorkoutIndex} 
                   />
                 }
               </div>
