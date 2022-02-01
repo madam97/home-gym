@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
 type RunFetchParams = {
-  method: string,
-  url: string, 
   body?: object, 
   callback?: Function
 };
@@ -16,7 +14,7 @@ type TUseFetch<T> = {
   data: T | undefined,
   error: string | undefined,
   loading: boolean,
-  runFetch({ method, url, body, callback}: RunFetchParams): void
+  runFetch({ body, callback}: RunFetchParams): void
 };
 
 export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): TUseFetch<T> {
@@ -27,13 +25,11 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
   const [loading, setLoading] = useState<boolean>(true);
 
   /**
-   * Runs the fetch request, used to run POST, PUT, PATCH and DELETE requests
-   * @param method
-   * @param url
+   * Runs the fetch request, used to run GET, POST, PUT, PATCH and DELETE requests
    * @param body
    * @param callback
    */
-  const runFetch = useCallback(({ method, url, body, callback}: RunFetchParams): void => {
+  const runFetch = useCallback(({ body, callback}: RunFetchParams): void => {
     /**
      * Asks down the data using the API url
      * @returns 
@@ -48,7 +44,7 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
         });
       } else {
         if (!body) {
-          throw Error(`missing body of the ${method} request`);
+          throw Error(`missing body of the ${method} ${url} request`);
         }
 
         res = await fetch(process.env.REACT_APP_API_BASE_URL + url, {
@@ -105,9 +101,10 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
   // Auto run GET fetches
   useEffect(() => {
     if (method === 'GET' && url) {
-      runFetch({ method, url });
-      return () => abortController.abort();
+      runFetch({});
     }
+
+    return () => abortController.abort();
   }, [abortController, url, method]);
 
   return { data, error, loading, runFetch };

@@ -5,15 +5,14 @@ import useFetch from '../hooks/useFetch';
 type WorkoutProps = {
   index: number,
   workoutProp: IWorkout,
-  showEditBtn?: boolean,
   showUpdateForm?: (index: number) => void
 };
 
-export default function Workout({ index, workoutProp, showEditBtn = false, showUpdateForm}: WorkoutProps): JSX.Element {
+export default function Workout({ index, workoutProp, showUpdateForm}: WorkoutProps): JSX.Element {
 
   const [workout, setWorkout] = useState<IWorkout>(workoutProp);
 
-  const { runFetch } = useFetch<IWorkout>({});
+  const { runFetch: runPatch } = useFetch<IWorkout>({method: 'PATCH', url: `/workouts/${workout.id}`});
 
   
   /**
@@ -21,7 +20,7 @@ export default function Workout({ index, workoutProp, showEditBtn = false, showU
    * @param repetitionIndex 
    */
    const setCompletedRepetition = (repetitionIndex: number): void => {
-    if (!showEditBtn) {
+    if (!showUpdateForm) {
       const completedRepetition = workout.completedRepetition === repetitionIndex ? repetitionIndex-1 : repetitionIndex;
   
       setWorkout((prevWorkout) => ({
@@ -29,18 +28,14 @@ export default function Workout({ index, workoutProp, showEditBtn = false, showU
         completedRepetition
       }));
   
-      runFetch({ 
-        method: 'PATCH', 
-        url: `/workouts/${workout.id}`, 
-        body: { completedRepetition }
-      });
+      runPatch({ body: { completedRepetition } });
     }
   }
 
   // -------------------------------
 
   // True, if all the repetitions of the workout are completed
-  const allRepetitionCompleted = !showEditBtn && workout.completedRepetition+1 === workout.repetitions.length;
+  const allRepetitionCompleted = !showUpdateForm && workout.completedRepetition+1 === workout.repetitions.length;
 
   return (
     <div className={`card ${allRepetitionCompleted ? 'bg-gray' : ''}`}>
@@ -49,7 +44,7 @@ export default function Workout({ index, workoutProp, showEditBtn = false, showU
           {/* Header */}
           <p className="subtitle flex-block">
             {/* Icons */}
-            {!showEditBtn && 
+            {!showUpdateForm && 
               <>
                 {allRepetitionCompleted && <GiCheckMark className="icon icon-green t-space-after" />}
                 {!allRepetitionCompleted && workout.weightTypeId !== 1 && <GiWeightLiftingUp className="icon t-space-after" />}
@@ -89,14 +84,14 @@ export default function Workout({ index, workoutProp, showEditBtn = false, showU
             {workout.repetitions.map((repetition, i) => (
               <span 
                 key={i} 
-                className={`chart-line-dot ${!showEditBtn && i <= workout.completedRepetition ? 'active' : ''}`}
+                className={`chart-line-dot ${!showUpdateForm && i <= workout.completedRepetition ? 'active' : ''}`}
                 onClick={() => setCompletedRepetition(i)}
               >{repetition}</span>
             ))}
           </div>
 
           {/* Edit button */}
-          {showEditBtn && showUpdateForm &&
+          {showUpdateForm &&
             <div className="mt-2 t-center">
               <button className="btn btn-primary" onClick={() => showUpdateForm(index)}>Edit</button>
             </div>

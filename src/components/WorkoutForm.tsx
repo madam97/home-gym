@@ -6,11 +6,12 @@ type WorkoutFromProps = {
   workout?: IWorkout,
   excercises?: IExcercise[],
   weightTypes?: IWeightType[],
-  insertWorkout?: (newWorkoutData: Record<string,any>) => void,
-  updateWorkout?: (index: number, newWorkoutData: Record<string,any>) => void
+  changeWorkouts(newWorkout: IWorkout, update: boolean): void
 };
 
-export default function WorkoutFrom({ index = -1, workout, excercises, weightTypes, insertWorkout, updateWorkout }: WorkoutFromProps): JSX.Element {
+export default function WorkoutFrom({ index = -1, workout, excercises, weightTypes, changeWorkouts }: WorkoutFromProps): JSX.Element {
+
+  const isUpdate = workout && workout.id !== 0;
 
   const [excercise, setExcercise] = useState<IExcercise | undefined>();
   const [weightType, setWeightType] = useState<IWeightType | undefined>();
@@ -24,6 +25,9 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
     weightType: undefined
   });
 
+  /**
+   * Set form values
+   */
   useEffect((): void => {
     // Update
     if (workout) {
@@ -41,6 +45,23 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
     }
   }, [workout]);
 
+  const { data: patchData, runFetch: runPatch} = useFetch<IWorkout>({ method: 'PATCH', url: `/workouts/${workout ? workout.id : 0}` });
+  const { data: postData, runFetch: runPost} = useFetch<IWorkout>({ method: 'POST', url: '/workouts' });
+
+  /**
+   * Showing POST and PATCH requests' results
+   */
+  useEffect((): void => {
+    // Update
+    if (isUpdate && patchData) {
+      changeWorkouts({ excercise, weightType, ...patchData }, true);
+    }
+    // Insert
+    else if (!isUpdate && postData) {
+      changeWorkouts({ excercise, weightType, ...postData }, false);
+    }
+  }, [postData, patchData]);
+
   /**
    * Saves the workout data
    * @param event 
@@ -48,32 +69,42 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
   const saveWorkout = (event: React.FormEvent<HTMLFormElement | HTMLButtonElement>): void => {
     event.preventDefault();
 
-    const newWorkoutData: Record<string,any> = {
-      id: workout?.id,
-      weight: typeof weight !== 'string' && weight >= 0 ? weight : 0,
-      repetitions
-    };
-
-    if (excercise) {
-      newWorkoutData.excerciseId = excercise.id;
-      newWorkoutData.excercise = excercise;
-    }
-
-    if (weightType) {
-      newWorkoutData.weightTypeId = weightType.id;
-      newWorkoutData.weightType = weightType;
-    }
-
-    if (validate(newWorkoutData)) {
+    if (workout && validate()) {
       // Update
-      if (workout && updateWorkout) {
-        newWorkoutData.completedRepetition = workout.repetitions.length !== repetitions.length ? -1 : workout.completedRepetition;
+      if (isUpdate) {
+        const newWorkoutData: Record<string,any> = {
+          id: workout?.id,
+          weight: typeof weight !== 'string' && weight >= 0 ? weight : 0,
+          repetitions,
+          completedRepetition: workout.repetitions.length !== repetitions.length ? -1 : workout.completedRepetition
+        };
+    
+        if (excercise) {
+          newWorkoutData.excerciseId = excercise.id;
+          newWorkoutData.excercise = excercise;
+        }
+    
+        if (weightType) {
+          newWorkoutData.weightTypeId = weightType.id;
+          newWorkoutData.weightType = weightType;
+        }
 
-        updateWorkout(index, newWorkoutData);
+        runPatch({ body: newWorkoutData });
       }
-      // Insert 
-      else if (!workout && insertWorkout) {
-        insertWorkout(newWorkoutData);
+      // Insert
+      else {
+        const newWorkout: IWorkout = {
+          ...workout,
+          weight: typeof weight !== 'string' && weight >= 0 ? weight : 0,
+          repetitions,
+          completedRepetition: workout.repetitions.length !== repetitions.length ? -1 : workout.completedRepetition,
+          excerciseId: excercise ? excercise.id : 0,
+          excercise,
+          weightTypeId: weightType ? weightType.id : 0,
+          weightType
+        };
+
+        runPost({ body: newWorkout });
       }
     }
   }
@@ -175,32 +206,33 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
 
   /**
    * Validates the workout data
-   * @param newWorkoutData
    * @returns True, if there were no errors
    */
-  const validate = (newWorkoutData: Record<string,any>): boolean => {
+  const validate = (): boolean => {
     const newErrors: IFormErrors = {
       excercise: '',
-      weightType: ''
+      weightType: '',
+      weight: '',
+      repetitions: ''
     };
 
     // Excercise
-    if (!newWorkoutData.excercise) {
+    if (!excercise) {
       newErrors.excercise = 'You have to choose an excercise';
     }
 
     // Weight type
-    if (!newWorkoutData.weightType) {
+    if (!weightType) {
       newErrors.weightType = 'You have to choose a weight type';
     }
 
     // Weight
-    if (newWorkoutData.weight < 0) {
+    if (weight < 0) {
       newErrors.weight = 'You have to give number larger or equal to 0';
     }
 
     // Repetition
-    if (newWorkoutData.repetitions.length < 1) {
+    if (repetitions.length < 1) {
       newErrors.repetitions = 'You have to give at least 1 repetition';
     }
 

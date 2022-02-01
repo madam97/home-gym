@@ -17,74 +17,86 @@ export default function MyWorkoutFrom(): JSX.Element {
   const { data: excercises } = useFetch<IExcercise[]>({url: '/excercises'});
   const { data: weightTypes } = useFetch<IWeightType[]>({url: '/weightTypes'});
   const { data: workoutsTmp, loading } = useFetch<IWorkout[]>({url: `/workouts?day=${day}&_sort=orderInd&_expand[]=excercise&_expand[]=weightType`});
-  const { runFetch } = useFetch<IWorkout>({});
 
   const [workouts, setWorkouts] = useState<IWorkout[]>();
+  const [emptyWorkout, setEmptyWorkout] = useState<IWorkout>({
+    id: 0,
+    excerciseId: 0,
+    excercise: undefined,
+    weightTypeId: 0,
+    weightType: undefined,
+    weight: 0,
+    repetitions: [],
+    completedRepetition: -1,
+    day: parseInt(day),
+    orderInd: workouts ? workouts.length+1 : 1
+  });
 
+  /**
+   * Sets the workouts
+   */
   useEffect(() => {
     setWorkouts(workoutsTmp);
   }, [workoutsTmp]);
 
   /**
-   * Inserts the given workout
-   * @param workout 
+   * Sets the empty workout orderInd value using the number of the workouts
    */
-  const insertWorkout = (newWorkoutData: Record<string,any>): void => {
-    const workout: IWorkout = {
-      id: 0,
-      excerciseId: newWorkoutData.excerciseId,
-      excercise: newWorkoutData.excercise,
-      weightTypeId: newWorkoutData.weightTypeId,
-      weightType: newWorkoutData.weightType,
-      weight: newWorkoutData.weight,
-      repetitions: newWorkoutData.repetitions,
-      completedRepetition: -1,
-      day: parseInt(day),
-      orderInd: workouts ? workouts.length : 1
-    };
+  useEffect(() => {
+    setEmptyWorkout((prevEmptyWorkout) => ({
+      ...prevEmptyWorkout,
+      orderInd: workouts ? workouts.length+1 : 1
+    }));
+  }, [workouts]);
 
+  /**
+   * Updates or saves the given workout
+   * @param newWorkout 
+   * @param update
+   */
+  const changeWorkouts = (newWorkout: IWorkout, update: boolean): void => {
     const newWorkouts = workouts ? workouts.slice() : [];
-    newWorkouts.push(workout);
-    setWorkouts(newWorkouts);
-    
-    runFetch({
-      method: 'POST',
-      url: '/workouts',
-      body: newWorkoutData, 
-      callback: () => {
-        showUpdateForm(newWorkouts.length - 1);
+
+    // Update
+    if (update) {
+      let updated = false;
+      newWorkouts.map((workout, index) => {
+        if (workout.id === newWorkout.id) {
+          newWorkouts[index] = newWorkout;
+          updated = true;
+          return;
+        }
+      });
+
+      if (!updated) {
+        throw Error(`was not able to update #${newWorkout.id} workout`);
       }
-    });
+
+      showUpdateForm(-1);
+    }
+    // Insert
+    else {
+      newWorkouts.push(newWorkout);
+
+      hideInsertForm();
+    }
+
+    setWorkouts(newWorkouts);
   }
 
   /**
-   * Updates the given workout data
-   * @param index 
-   * @param newWorkout
+   * Shows the add new workout form and hides the edit form of the given workout
    */
-  const updateWorkout = (index: number, newWorkoutData: Record<string,any>): void => {
-    if (workouts) {
-      const newWorkouts = workouts.slice();
-      newWorkouts[index] = {
-        ...newWorkouts[index],
-        ...newWorkoutData
-      };
-      setWorkouts(newWorkouts);
-    }
-
-    runFetch({
-      method: 'PATCH',
-      url: `/workouts/${newWorkoutData.id}`,
-      body: newWorkoutData, 
-      callback: () => {
-        showUpdateForm(-1);
-      }
-    });
-  }
-
   const showInsertForm = (): void => {
     setShownInsertForm(true);
     setEditedWorkoutIndex(-1);
+  }
+
+  /**
+   * Hides the add new workout form
+   */
+  const hideInsertForm = (): void => {
+    setShownInsertForm(false);
   }
 
   /**
@@ -109,9 +121,10 @@ export default function MyWorkoutFrom(): JSX.Element {
       {shownInsertForm && 
         <section className="section mb-5">
           <WorkoutFrom 
+            workout={emptyWorkout}
             excercises={excercises} 
             weightTypes={weightTypes} 
-            insertWorkout={insertWorkout} 
+            changeWorkouts={changeWorkouts}
           />
         </section>
       }
@@ -128,14 +141,14 @@ export default function MyWorkoutFrom(): JSX.Element {
                     workout={workout}
                     excercises={excercises} 
                     weightTypes={weightTypes} 
-                    updateWorkout={updateWorkout} 
+                    changeWorkouts={changeWorkouts} 
                   />
                 }
                 {editedWorkoutIndex !== index && 
                   <Workout 
                     index={index} 
                     workoutProp={workout} 
-                    showEditBtn={true} 
+                    showUpdateForm={showUpdateForm}
                   />
                 }
               </div>
