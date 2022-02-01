@@ -7,7 +7,7 @@ type RunFetchParams = {
 
 type UseFetchProps = {
   url?: string,
-  method?: string
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 };
 
 type TUseFetch<T> = {
@@ -37,7 +37,7 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
     const fetchData = async (): Promise<T> => {
       let res: Response = new Response();
 
-      if (method === 'GET') {
+      if (method === 'GET' || method === 'DELETE') {
         res = await fetch(process.env.REACT_APP_API_BASE_URL + url, {
           method: method,
           signal: abortController.signal
@@ -57,6 +57,8 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
         });
       }
 
+      console.log(`TEST: useFetch ${method} ${process.env.REACT_APP_API_BASE_URL + url}`, body);
+
       if (!res.ok) {
         throw Error('was not able to fetch data');
       }
@@ -75,18 +77,21 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
         setData(data);
         setError(undefined);
         setLoading(false);
+
+        if (callback) {
+          callback();
+        }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
           console.log('fetch was aborted');
         } else {
           if (err instanceof Error) {
+            console.log('API error: ', err.message);
             setError(err.message);
+          } else {
+            console.log('API error: unknown');
           }
           setLoading(false);
-        }
-      } finally {
-        if (callback) {
-          callback();
         }
       }
     }
