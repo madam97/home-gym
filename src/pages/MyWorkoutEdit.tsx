@@ -14,7 +14,7 @@ export default function MyWorkoutFrom(): JSX.Element {
   const [shownInsertForm, setShownInsertForm] = useState<boolean>(false);
   const [editedWorkoutIndex, setEditedWorkoutIndex] = useState<number>(-1);
   
-  const { data: excercises } = useFetch<IExcercise[]>({url: '/excercises'});
+  const { data: excercises } = useFetch<IExcercise[]>({url: '/excercises?_sort=name'});
   const { data: weightTypes } = useFetch<IWeightType[]>({url: '/weightTypes'});
   const { data: workoutsTmp, loading } = useFetch<IWorkout[]>({url: `/workouts?day=${day}&_sort=orderInd&_expand[]=excercise&_expand[]=weightType`});
 
@@ -26,7 +26,7 @@ export default function MyWorkoutFrom(): JSX.Element {
     weightTypeId: 0,
     weightType: undefined,
     weight: 0,
-    repetitions: [],
+    repetitions: [10,10,10],
     completedRepetition: -1,
     day: parseInt(day),
     orderInd: workouts ? workouts.length+1 : 1
@@ -59,19 +59,8 @@ export default function MyWorkoutFrom(): JSX.Element {
 
     // Update
     if (update) {
-      let updated = false;
-      newWorkouts.map((workout, index) => {
-        if (workout.id === newWorkout.id) {
-          newWorkouts[index] = newWorkout;
-          updated = true;
-          return;
-        }
-      });
-
-      if (!updated) {
-        throw Error(`was not able to update #${newWorkout.id} workout`);
-      }
-
+      const index = getWorkoutIndex(newWorkout.id);
+      newWorkouts[index] = newWorkout;
       showUpdateForm(-1);
     }
     // Insert
@@ -82,6 +71,42 @@ export default function MyWorkoutFrom(): JSX.Element {
     }
 
     setWorkouts(newWorkouts);
+  }
+
+  /**
+   * Removes the given workout
+   * @param workoutId
+   */
+  const removeWorkout = (workoutId: number): void => {
+    if (workouts) {
+      const newWorkouts = workouts.slice();
+      const index = getWorkoutIndex(workoutId);
+      newWorkouts.splice(index, 1);
+      setWorkouts(newWorkouts);
+    }
+  }
+
+  /**
+   * Returns the index of the given workout in the workouts array
+   * @param workoutId
+   */
+  const getWorkoutIndex = (workoutId: number): number => {
+    let index: number | null = null;
+
+    if (workouts) {
+      for (let i in workouts) {
+        if (workouts[i].id === workoutId) {
+          index = parseInt(i);
+          break;
+        }
+      }
+    }
+
+    if (index === null) {
+      throw Error(`was not able to get the index of #${workoutId} workout`);
+    }
+      
+    return index;
   }
 
   /**
@@ -130,8 +155,8 @@ export default function MyWorkoutFrom(): JSX.Element {
       }
 
       {/* Edit workouts list */}
-      {!loading && workouts && workouts.length > 0 && 
-        <section className="section">
+      <section className="section">
+        {!loading && workouts && workouts.length > 0 && 
           <div className="row">
             {workouts.map((workout, index) => (
               <div key={workout.id} className="col">
@@ -149,13 +174,17 @@ export default function MyWorkoutFrom(): JSX.Element {
                     index={index} 
                     workoutProp={workout} 
                     showUpdateForm={showUpdateForm}
+                    removeWorkout={removeWorkout}
                   />
                 }
               </div>
             ))}
           </div>
-        </section>
-      }
+        }
+
+        {loading && <p className="t-center">Loading workouts of the day...</p>}
+        {!loading && (!workouts || workouts.length === 0) && <p className="t-center">There are now workouts on this day yet.</p>}
+      </section>
 
       {/* Datalist for excercises */}
       {excercises && 

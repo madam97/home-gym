@@ -234,6 +234,18 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
     // Repetition
     if (repetitions.length < 1) {
       newErrors.repetitions = 'You have to give at least 1 repetition';
+    } else {
+      let ok = true;
+      for (const repetition of repetitions) {
+        if (repetition < 1) {
+          ok = false;
+          break;
+        }
+      }
+
+      if (!ok) {
+        newErrors.repetitions = 'Repetitions must be larger or equal to 1';
+      }
     }
 
     setFormErrors(newErrors);

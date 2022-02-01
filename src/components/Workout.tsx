@@ -5,15 +5,16 @@ import useFetch from '../hooks/useFetch';
 type WorkoutProps = {
   index: number,
   workoutProp: IWorkout,
-  showUpdateForm?: (index: number) => void
+  showUpdateForm?: (index: number) => void,
+  removeWorkout?: (workoutId: number) => void
 };
 
-export default function Workout({ index, workoutProp, showUpdateForm}: WorkoutProps): JSX.Element {
+export default function Workout({ index, workoutProp, showUpdateForm, removeWorkout}: WorkoutProps): JSX.Element {
 
   const [workout, setWorkout] = useState<IWorkout>(workoutProp);
 
   const { runFetch: runPatch } = useFetch<IWorkout>({method: 'PATCH', url: `/workouts/${workout.id}`});
-
+  const { runFetch: runDelete } = useFetch<IWorkout>({method: 'DELETE', url: `/workouts/${workout.id}`});
   
   /**
    * Sets the last completed repetition's index of the workout
@@ -23,14 +24,29 @@ export default function Workout({ index, workoutProp, showUpdateForm}: WorkoutPr
     if (!showUpdateForm) {
       const completedRepetition = workout.completedRepetition === repetitionIndex ? repetitionIndex-1 : repetitionIndex;
   
-      setWorkout((prevWorkout) => ({
-        ...prevWorkout,
-        completedRepetition
-      }));
-  
-      runPatch({ body: { completedRepetition } });
+      runPatch({ 
+        body: { completedRepetition },
+        callback: (): void => {
+          setWorkout((prevWorkout) => ({
+            ...prevWorkout,
+            completedRepetition
+          }));
+        }
+      });
     }
   }
+
+  /**
+   * Deletes the workout
+   */
+  const deleteWorkout = (): void => {
+    if (removeWorkout) {
+      runDelete({ 
+        callback: () => removeWorkout(workout.id)
+      });
+    }
+  }
+
 
   // -------------------------------
 
@@ -84,16 +100,17 @@ export default function Workout({ index, workoutProp, showUpdateForm}: WorkoutPr
             {workout.repetitions.map((repetition, i) => (
               <span 
                 key={i} 
-                className={`chart-line-dot ${!showUpdateForm && i <= workout.completedRepetition ? 'active' : ''}`}
+                className={`chart-line-dot ${!showUpdateForm ? 'clickable' : ''} ${!showUpdateForm && i <= workout.completedRepetition ? 'active' : ''}`}
                 onClick={() => setCompletedRepetition(i)}
               >{repetition}</span>
             ))}
           </div>
 
-          {/* Edit button */}
-          {showUpdateForm &&
+          {/* Edit, remove button */}
+          {(showUpdateForm || removeWorkout) &&
             <div className="mt-2 t-center">
-              <button className="btn btn-primary" onClick={() => showUpdateForm(index)}>Edit</button>
+              {showUpdateForm && <button className="btn btn-primary" onClick={() => showUpdateForm(index)}>Edit</button>}
+              {removeWorkout && <button className="btn btn-outline-black ml-1" onClick={() => deleteWorkout()}>Delete</button>}
             </div>
           }
         </>

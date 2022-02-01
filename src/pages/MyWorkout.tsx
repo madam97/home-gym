@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import moment from 'moment';
 import Days from '../components/Days';
 import useFetch from '../hooks/useFetch';
@@ -8,14 +8,11 @@ import { Link } from 'react-router-dom';
 export default function MyWorkout(): JSX.Element {
 
   const [activeDay, setActiveDay] = useState<number>(moment().isoWeekday());
+  const [workoutsOfDay, setWorkoutsOfDay] = useState<IWorkout[]>([]);
 
-  const { data: workouts, loading } = useFetch<IWorkout[]>({url: '/workouts?_expand[]=excercise&_expand[]=weightType'});
+  const { data: workouts, loading, runFetch: runGet } = useFetch<IWorkout[]>({url: `/workouts?_sort=orderInd&_expand[]=excercise&_expand[]=weightType`});
 
-  /**
-   * Gets the workouts of the active day
-   * @returns
-   */
-  const getWorkoutsOfDay = (): IWorkout[] => {
+  useEffect((): void => {
     const workoutsOfDay: IWorkout[] = [];
 
     if (workouts) {
@@ -24,18 +21,12 @@ export default function MyWorkout(): JSX.Element {
           workoutsOfDay.push(workout);
         }
       }
-  
-      workoutsOfDay.sort((a,b) => a.orderInd - b.orderInd);
     }
 
-    return workoutsOfDay;
-  }
-
-
+    setWorkoutsOfDay(workoutsOfDay);
+  }, [workouts, activeDay]);
 
   // -------------------------------------------
-
-  const workoutsOfDay = getWorkoutsOfDay();
 
   return (
     <>
@@ -48,7 +39,7 @@ export default function MyWorkout(): JSX.Element {
         <Days activeDay={activeDay} setActiveDay={setActiveDay} />
       </section>
 
-      {!loading && workoutsOfDay.length > 0 && 
+      {!loading && workoutsOfDay && workoutsOfDay.length > 0 && 
         <section className="section">
           <div className="row">
             {workoutsOfDay.map((workout, index) => (
@@ -60,7 +51,7 @@ export default function MyWorkout(): JSX.Element {
         </section>
       }
 
-      {!loading && workoutsOfDay.length === 0 && 
+      {!loading && (!workoutsOfDay || workoutsOfDay.length === 0) && 
         <section className="section t-center">
           <p className="h4">Rest day</p>
           <p>Relax and stretch your muscles to endure the next day of training.</p>
