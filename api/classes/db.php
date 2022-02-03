@@ -1,6 +1,15 @@
 <?php
 
 class DB {
+  /** @var array DEF_GET_OPTIONS The default get function's options */
+  const DEF_GET_OPTIONS = [
+    'filters' => [],
+    'sort' => [],
+    'order' => [],
+    'expand' => [],
+    'limit_one' => false
+  ];
+
   /** @var array $data */
   static $data = [];
 
@@ -31,6 +40,8 @@ class DB {
    * @param array $options
    */
   public static function get($table, $id = 0, $options = []) {
+    $options = array_merge(self::DEF_GET_OPTIONS, $options);
+
     // Returns every data
     if ($table === '' || $table === 'db') {
       $ret = self::$data;
@@ -41,7 +52,7 @@ class DB {
       $ret = self::$data[$table];
 
       // Filter
-      if (!empty($options['filters'])) {
+      if ($options['filters']) {
         self::validateCols($table, array_keys($options['filters']));
         
         foreach ($ret as $i => $row) {
@@ -59,17 +70,8 @@ class DB {
         }
       }
 
-      // Order
-      if (!empty($options['sort'])) {
-        foreach ($options['sort'] as $col) {
-          self::validateCol($table, $col);
-        }
-
-        dsort($ret, $options['sort'], isset($options['order']) ? $options['order'] : []);
-      }
-
       // Get childrens - expand param
-      if (!empty($options['expand'])) {
+      if ($options['expand']) {
         foreach ($options['expand'] as $expand) {
           $expand_table = self::validateTable($expand, true);
           $expand_col_id = $expand.'Id';
@@ -80,6 +82,19 @@ class DB {
           }
         }
       }
+
+      // Limit 1
+      if ($options['limit_one']) {
+        $ret = reset($ret);
+      }
+      // Order
+      elseif ($options['sort']) {
+        foreach ($options['sort'] as $col) {
+          self::validateCol($table, $col);
+        }
+
+        dsort($ret, $options['sort'], $options['order']);
+      }
     }
     // Returns an item in the table
     else {
@@ -89,7 +104,7 @@ class DB {
       $ret = self::$data[$table][$i];
 
       // Get childrens - expand param
-      if (!empty($options['expand'])) {
+      if ($options['expand']) {
         foreach ($options['expand'] as $expand) {
           $expand_table = self::validateTable($expand, true);
           $expand_col_id = $expand.'Id';
