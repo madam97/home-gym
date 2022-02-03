@@ -9,6 +9,9 @@ class API {
     'order' => 'split'
   ];
 
+  /** @var Auth $auth The authorization class */
+  private $auth;
+
   /** @var array $uri The API endpoint's elements */
   private $uri;
   /** @var int $count_uri The count of the API endpoint's elements */
@@ -35,8 +38,33 @@ class API {
     $this->uri = explode('/', $uri);
     $this->count_uri = count($this->uri);
 
-    $func = 'process'.$_SERVER['REQUEST_METHOD'];
-    $this->$func();
+    // Authorization processes
+    if ($this->count_uri > 0 && $this->uri[0] === 'auth') {
+      $this->processAuth();
+    }
+    // CRUD processes
+    else {
+      // TODO $token_data = Auth::checkToken();
+
+      $func = 'process'.$_SERVER['REQUEST_METHOD'];
+      $this->$func();
+    }
+  }
+
+  /**
+   * Runs an authorization process
+   */
+  private function processAuth() {
+    if (empty($this->uri[1])) {
+      throw new \Exception('missing authorization process');
+    } elseif (!method_exists('Auth', $this->uri[1])) {
+      throw new \Exception("'{$this->uri[1]}' is an invalid authorization process");
+    } elseif ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      throw new \Exception("'{$this->uri[1]}' authorization process must use POST method");
+    }
+
+    $func = $this->uri[1];
+    $this->sendOk(Auth::{$func}($this->getBody()));
   }
 
   /**
