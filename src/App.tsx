@@ -5,7 +5,7 @@ import routes from './config/routes';
 
 const App = (): JSX.Element => {
   return (
-    <Router>
+    <Router basename="/home-gym">
       <div className="App">
         <Header />
 
