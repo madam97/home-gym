@@ -9,13 +9,23 @@ class API {
     'order' => 'split'
   ];
 
+  /** @var array DEF_ROUTE_OPTIONS Default route options */
+  const DEF_ROUTE_OPTIONS = [
+    'user_login_required' => false,
+    'user_id_col' => null
+  ];
+
   /** @var Auth $auth The authorization class */
   private $auth;
 
-  /** @var array $uri The API endpoint's elements */
+  /** @var string $method The API endpoint's method */
+  private $method;
+  /** @var array $uri The API endpoint's parts */
   private $uri;
   /** @var int $count_uri The count of the API endpoint's elements */
   private $count_uri;
+  /** @var object $route The API endpoint's route data */
+  private $route;
 
   /**
    * Constructor. Sets the necessary headers
@@ -34,9 +44,12 @@ class API {
    * Runs the API process
    */
   public function processRequest() {
-    $uri = parse_url($_REQUEST['path'], PHP_URL_PATH);
+    $uri = preg_replace('/^[\s\/]+|[\s\/]+$/', '', parse_url($_REQUEST['path'], PHP_URL_PATH));
     $this->uri = explode('/', $uri);
     $this->count_uri = count($this->uri);
+    $this->method = $_SERVER['REQUEST_METHOD'];
+
+    $this->validateRoute($uri);
 
     // Authorization processes
     if ($this->count_uri > 0 && $this->uri[0] === 'auth') {
@@ -44,10 +57,42 @@ class API {
     }
     // CRUD processes
     else {
-      // TODO $token_data = Auth::checkToken();
-
-      $func = 'process'.$_SERVER['REQUEST_METHOD'];
+      $func = 'process'.$this->method;
       $this->$func();
+    }
+  }
+
+  /**
+   * Validates the API endpoint's route and saves its data
+   * @param string $uri
+   */
+  private function validateRoute($uri) {
+    require_once ROOT.'/config/routes.php';
+
+    $this->route = null;
+    foreach ($routes as $r) {
+      if (preg_match('/^'.preg_replace('/\//', '\/', $r['url']).'$/i', $uri)) {
+        $this->route = (object) $r;
+        break;
+      }
+    }
+
+    if (!$this->route) {
+      throw new \Exception("'$uri' is an invalid endpoint");
+    }
+
+    if (isset($this->route->options) && is_array($this->route->options)) {
+      $this->route->options = (object) array_merge(self::DEF_ROUTE_OPTIONS, $this->route->options);
+    } else {
+      $this->route->options = new stdClass();
+    }
+
+    if (!in_array($this->method, $this->route->methods)) {
+      throw new \Exception("'{$this->method}' is not allowed on '$uri' endpoint");
+    }
+
+    if ($this->route->options->user_login_required) {
+      Auth::checkToken();
     }
   }
 
@@ -59,8 +104,6 @@ class API {
       throw new \Exception('missing authorization process');
     } elseif (!method_exists('Auth', $this->uri[1])) {
       throw new \Exception("'{$this->uri[1]}' is an invalid authorization process");
-    } elseif ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-      throw new \Exception("'{$this->uri[1]}' authorization process must use POST method");
     }
 
     $func = $this->uri[1];
@@ -95,9 +138,15 @@ class API {
       }
     }
 
-    // Filter
+    // Filters
     if (count($url_params) > 0) {
       $options['filters'] = $url_params;
+    } else {
+      $options['filters'] = [];
+    }
+
+    if ($this->route->options->user_id_col) {
+      $options['filters'][ $this->route->options->user_id_col ] = Auth::$user_id;
     }
 
     // Get and send data
@@ -116,7 +165,14 @@ class API {
       throw new \Exception('element is required');
     }
 
-    $this->sendOk(DB::insert($this->uri[0], $this->getBody()));
+    $data = $this->getBody();
+
+    // Add user id
+    if ($this->route->options->user_id_col) {
+      $data[$this->route->options->user_id_col] = Auth::$user_id;
+    }
+
+    $this->sendOk(DB::insert($this->uri[0], $data));
   }
 
   /**
@@ -127,6 +183,16 @@ class API {
     if ($this->count_uri !== 2) {
       throw new \Exception('element and id is required');
     }
+
+    $options = [];
+
+    // Validate user id
+    if ($this->route->options->user_id_col) {
+      $options['filters'] = [ $this->route->options->user_id_col => Auth::$user_id ];
+    }
+
+    // Check saved data in table
+    DB::get($this->uri[0], $this->uri[1], $options);
 
     $this->sendOk(DB::update($this->uri[0], $this->uri[1], $this->getBody()));
   }
@@ -145,6 +211,16 @@ class API {
     if ($this->count_uri !== 2) {
       throw new \Exception('element and id is required');
     }
+
+    $options = [];
+
+    // Validate user id
+    if ($this->route->options->user_id_col) {
+      $options['filters'] = [ $this->route->options->user_id_col => Auth::$user_id ];
+    }
+
+    // Check saved data in table
+    DB::get($this->uri[0], $this->uri[1], $options);
 
     $this->sendOk(DB::delete($this->uri[0], $this->uri[1]));
   }

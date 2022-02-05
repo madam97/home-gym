@@ -1,12 +1,13 @@
 <?php
 
-require './vendor/autoload.php';
-
 require './config/config.php';
-require './functions/array_sort.php';
-require './classes/api.php';
-require './classes/db.php';
-require './classes/auth.php';
+
+require ROOT.'/vendor/autoload.php';
+
+require ROOT.'/functions/array_sort.php';
+require ROOT.'/classes/api.php';
+require ROOT.'/classes/db.php';
+require ROOT.'/classes/auth.php';
 
 $api = new API();
 

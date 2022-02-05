@@ -30,7 +30,7 @@ class Auth {
 
     // Generate JWT token
     $now = new \DateTimeImmutable();
-    $expire = $now->modify('+10 minutes')->getTimestamp();
+    $expire = $now->modify('+30 minutes')->getTimestamp();
 
     $data = [
       'iat' => $now->getTimestamp(),

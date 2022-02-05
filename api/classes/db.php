@@ -103,6 +103,17 @@ class DB {
       $i = self::validateId($table, $id);
       $ret = self::$data[$table][$i];
 
+      // Filter
+      if ($options['filters']) {
+        self::validateCols($table, array_keys($options['filters']));
+        
+        foreach ($options['filters'] as $col => $value) {
+          if ($ret[$col] != $value) {
+            throw new \Exception("'$id' id in '$table' has invalid value in the '$col' column");
+          }
+        }
+      }
+
       // Get childrens - expand param
       if ($options['expand']) {
         foreach ($options['expand'] as $expand) {
@@ -160,7 +171,8 @@ class DB {
    */
   public static function update($table, $id, $data) {
     // Get saved data
-    $saved_data = DB::get($table, $id);
+    $i = self::validateId($table, $id);
+    $saved_data = self::$data[$table][$i];
 
     // Remove unnecessary data, set id, order values
     $data = array_merge($saved_data, array_intersect_key($data, $saved_data));
@@ -171,7 +183,6 @@ class DB {
     self::validateChildren($data);
 
     // Save data
-    $i = self::validateId($table, $id);
     self::$data[$table][$i] = $data;
     self::save();
 
