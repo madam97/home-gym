@@ -172,7 +172,7 @@ export default function MyWorkoutFrom(): JSX.Element {
                 {editedWorkoutIndex !== index && 
                   <Workout 
                     index={index} 
-                    workoutProp={workout} 
+                    workout={workout} 
                     showUpdateForm={showUpdateForm}
                     removeWorkout={removeWorkout}
                   />

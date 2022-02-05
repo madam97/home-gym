@@ -4,14 +4,13 @@ import useFetch from '../hooks/useFetch';
 
 type WorkoutProps = {
   index: number,
-  workoutProp: IWorkout,
+  workout: IWorkout,
   showUpdateForm?: (index: number) => void,
+  changeWorkouts?: (newWorkout: IWorkout) => void,
   removeWorkout?: (workoutId: number) => void
 };
 
-export default function Workout({ index, workoutProp, showUpdateForm, removeWorkout}: WorkoutProps): JSX.Element {
-
-  const [workout, setWorkout] = useState<IWorkout>(workoutProp);
+export default function Workout({ index, workout, showUpdateForm, changeWorkouts, removeWorkout}: WorkoutProps): JSX.Element {
 
   const { runFetch: runPatch } = useFetch<IWorkout>({method: 'PATCH', url: `/workouts/${workout.id}`});
   const { runFetch: runDelete } = useFetch<IWorkout>({method: 'DELETE', url: `/workouts/${workout.id}`});
@@ -21,16 +20,18 @@ export default function Workout({ index, workoutProp, showUpdateForm, removeWork
    * @param repetitionIndex 
    */
    const setCompletedRepetition = (repetitionIndex: number): void => {
-    if (!showUpdateForm) {
-      const completedRepetition = workout.completedRepetition === repetitionIndex ? repetitionIndex-1 : repetitionIndex;
+    if (!showUpdateForm && changeWorkouts) {
+      const newWorkout: IWorkout = {
+        ...workout,
+        completedRepetition: workout.completedRepetition === repetitionIndex ? repetitionIndex-1 : repetitionIndex
+      };
   
       runPatch({ 
-        body: { completedRepetition },
+        body: { 
+          completedRepetition: newWorkout.completedRepetition 
+        },
         callback: (): void => {
-          setWorkout((prevWorkout) => ({
-            ...prevWorkout,
-            completedRepetition
-          }));
+          changeWorkouts(newWorkout);
         }
       });
     }

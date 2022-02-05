@@ -10,7 +10,13 @@ export default function MyWorkout(): JSX.Element {
   const [activeDay, setActiveDay] = useState<number>(moment().isoWeekday());
   const [workoutsOfDay, setWorkoutsOfDay] = useState<IWorkout[]>([]);
 
-  const { data: workouts, loading, runFetch: runGet } = useFetch<IWorkout[]>({url: `/workouts?_sort=orderInd&_expand[]=excercise&_expand[]=weightType`});
+  const { data: workoutsTmp, loading } = useFetch<IWorkout[]>({url: `/workouts?_sort=orderInd&_expand[]=excercise&_expand[]=weightType`});
+
+  const [workouts, setWorkouts] = useState<IWorkout[]>();
+
+  useEffect((): void => {
+    setWorkouts(workoutsTmp);
+  }, [workoutsTmp]);
 
   useEffect((): void => {
     const workoutsOfDay: IWorkout[] = [];
@@ -25,6 +31,42 @@ export default function MyWorkout(): JSX.Element {
 
     setWorkoutsOfDay(workoutsOfDay);
   }, [workouts, activeDay]);
+
+  /**
+   * Updates the given workout
+   * @param newWorkout 
+   * @param update
+   */
+  const changeWorkouts = (newWorkout: IWorkout): void => {
+    const newWorkouts = workouts ? workouts.slice() : [];
+    const index = getWorkoutIndex(newWorkout.id);
+    newWorkouts[index] = newWorkout;
+    setWorkouts(newWorkouts);
+  }
+
+  /**
+   * Returns the index of the given workout in the workouts array
+   * @param workoutId
+   */
+  const getWorkoutIndex = (workoutId: number): number => {
+    let index: number | null = null;
+
+    if (workouts) {
+      for (let i in workouts) {
+        if (workouts[i].id === workoutId) {
+          index = parseInt(i);
+          break;
+        }
+      }
+    }
+
+    if (index === null) {
+      throw Error(`was not able to get the index of #${workoutId} workout`);
+    }
+      
+    return index;
+  }
+
 
   // -------------------------------------------
 
@@ -44,7 +86,11 @@ export default function MyWorkout(): JSX.Element {
           <div className="row">
             {workoutsOfDay.map((workout, index) => (
               <div key={workout.id} className="col sm-6 lg-4">
-                <Workout index={index} workoutProp={workout} />
+                <Workout 
+                  index={index} 
+                  workout={workout} 
+                  changeWorkouts={changeWorkouts}
+                />
               </div>
             ))}
           </div>
