@@ -7,7 +7,7 @@
   background: $white;
 
   header & {
-    z-index: 100;
+    z-index: $z-index-header;
     position: fixed;
     width: 100%;
   }
@@ -91,7 +91,6 @@
 .nav-toggler {
   cursor: pointer;
   display: inline-block;
-  margin-left: auto;
   padding: 3.5px 5px;
   border: 0;
   background: transparent;
