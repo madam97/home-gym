@@ -3,6 +3,7 @@ button {
 }
 
 .btn {
+  display: inline-block;
   padding: 0.55em 1.55em;
   border: 1px solid $gray-e5;
   background: $gray-e5;
@@ -14,30 +15,13 @@ button {
 }
 
 .btn-primary {
-  border-color: $primary;
-  background: $primary;
-  color: $white;
-
-  &:hover,
-  &:focus,
-  &:active,
-  &.active {
-    border-color: $black;
-    background: $black;
-    color: $white;
-  }
+  @include mixin-btn-primary($primary, $black, $white, $white)
 }
 
 .btn-outline-black {
-  border: 1px solid $black;
-  background: transparent;
-  color: $black;
+  @include mixin-btn-outline($black, $black, $white);
+}
 
-  &:hover,
-  &:focus,
-  &:active,
-  &.active {
-    background: $black;
-    color: $white;
-  }
+.btn-outline-white {
+  @include mixin-btn-outline($white, $white, $black);
 }

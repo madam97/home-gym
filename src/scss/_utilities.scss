@@ -94,16 +94,13 @@ $directions: 'top' 'right' 'bottom' 'left';
 // Backgrounds
 
 .bg-gray { background: $gray-f1; }
+.bg-video { filter: grayscale(1) brightness(0.6); }
 
 
 // Borders
 @each $dir in $directions {
   .b#{str-slice($dir,1,1)} { border-#{$dir}: 1px solid $gray-e5; }
 }
-
-
-// Filters
-.filter-grayscale { filter: grayscale(1); }
 
 
 
@@ -113,13 +110,19 @@ $directions: 'top' 'right' 'bottom' 'left';
 .t-space-after { margin-right: 0.4em; }
 .t-space-around { margin-left: 0.4em; margin-right: 0.4em; }
 
+
 @for $i from 1 through 5 {
   .para-hidden-#{$i} { overflow: hidden; max-height: 1.2em * $i; }
 }
 
 .f-black { color: $black; }
+.f-white { color: $white; }
+
 .f-smaller { font-size: 1.2em; }
 .f-larger { font-size: 1.4em; }
+@for $i from 1 through 5 {
+  .f-#{$i} { font-size: 1em * $i; }
+}
 
 
 

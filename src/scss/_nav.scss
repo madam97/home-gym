@@ -56,7 +56,6 @@
       right: 0;
       padding: $gap * 0.5 0;
       background: $white;
-      box-shadow: 0 10px 10px $gray-e5;
       transition: $anim-time;
 
       &:not(.opened) {
@@ -116,5 +115,9 @@
     width: 30px;
     height: 3px;
     background: $black;
+
+    .nav-transparent & {
+      background: $white;
+    }
   }
 }

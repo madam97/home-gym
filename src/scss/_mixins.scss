@@ -1,0 +1,29 @@
+// Buttons
+@mixin mixin-btn-primary($color-normal, $color-hover, $font-color-normal, $font-color-hover) {
+  border-color: $color-normal;
+  background: $color-normal;
+  color: $font-color-normal;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    border-color: $color-hover;
+    background: $color-hover;
+    color: $font-color-hover;
+  }
+}
+
+@mixin mixin-btn-outline($color-hover, $font-color-normal, $font-color-hover) {
+  border: 1px solid $color-hover;
+  background: transparent;
+  color: $font-color-normal;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    background: $color-hover;
+    color: $font-color-hover;
+  }
+}
