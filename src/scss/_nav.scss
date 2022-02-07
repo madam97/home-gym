@@ -4,7 +4,10 @@
   align-items: center;
   padding: 0 $gap;
   height: $nav-height;
-  background: $white;
+
+  &:not(.nav-transparent) {
+    background: $white;
+  }
 
   header & {
     z-index: $z-index-header;
@@ -23,6 +26,12 @@
 
     a {
       display: block;
+    }
+  }
+
+  &.nav-transparent {
+    .logo {
+      color: $white;
     }
   }
 
@@ -83,6 +92,12 @@
         padding: 0 $gap;
         height: $nav-height;
         line-height: $nav-height;
+      }
+    }
+
+    &.nav-transparent {
+      .nav-menu a {
+        color: $white;
       }
     }
   }

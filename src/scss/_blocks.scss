@@ -1,6 +1,26 @@
 // Cards
 .card {
-  padding: $gap;
-  border: 1px solid $gray-e5;
-  border-radius: $gap;
+  &:not(.card-simple) {
+    padding: $gap;
+    border: 1px solid $gray-e5;
+    border-radius: $gap;
+  }
+
+  &.card-simple {
+    padding: $gap * 2;
+  }
+}
+
+.card-dark {
+  color: $white;
+  background: fade-out($black, 0.5);
+  transition: $anim-time background;
+
+  &:hover {
+    background: $black;
+  }
+
+  h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6,.title {
+    color: $white;
+  }
 }
