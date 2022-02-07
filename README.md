@@ -3,8 +3,11 @@
 This is my project to show my knowledge about using...
 - React basic concepts (components, hooks)
 - React Router
-- Backend API
+- CRUD operations
+- Authentication using JWT token
+- TypeScript
 - SASS
+- Backend API
 
 The website has the following functions:
 - responsive UI
