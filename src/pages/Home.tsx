@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { EffectCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Background from '../assets/home-background.mp4';
+import BackgroundVideo from '../components/BackgroundVideo';
+import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../hooks/useAuth';
 
 type HomeProps = {
@@ -9,21 +10,20 @@ type HomeProps = {
 
 export default function Home({}: HomeProps): JSX.Element {
 
+  const theme = useTheme();
   const auth = useAuth();
 
-  const homeBg = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    theme.setNavTransparent(true);
 
-  useEffect((): void => {
-    if (homeBg && homeBg.current) {
-      homeBg.current.playbackRate = 0.7;
+    return (): void => {
+      theme.setNavTransparent(false);
     }
   }, []);
 
   return (
     <>
-      <video ref={homeBg} className="fixed-full filter-grayscale" autoPlay={true} muted={true} loop={true}>
-        <source src={Background} type="video/mp4" />
-      </video>
+      <BackgroundVideo />
 
       <section className="section fixed-full flex-center pt-header">
         <div className="row row-space-between">
