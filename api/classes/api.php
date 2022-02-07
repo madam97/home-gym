@@ -34,7 +34,12 @@ class API {
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json; charset=UTF-8');
     header('Access-Control-Allow-Methods: GET,POST,PUT,PATCH,DELETE');
-    header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+    header('Access-Control-Allow-Headers: Content-Type,Access-Control-Allow-Headers,Authorization,X-Requested-With');
+
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+      header('HTTP/1.1 200 OK');
+      exit();
+    }
 
     error_reporting( E_ERROR | E_COMPILE_ERROR | E_WARNING );
     // ini_set( 'display_errors', 0 );
@@ -184,15 +189,7 @@ class API {
       throw new \Exception('element and id is required');
     }
 
-    $options = [];
-
-    // Validate user id
-    if ($this->route->options->user_id_col) {
-      $options['filters'] = [ $this->route->options->user_id_col => Auth::$user_id ];
-    }
-
-    // Check saved data in table
-    DB::get($this->uri[0], $this->uri[1], $options);
+    $this->validateUserIdOfElement();
 
     $this->sendOk(DB::update($this->uri[0], $this->uri[1], $this->getBody()));
   }
@@ -212,17 +209,28 @@ class API {
       throw new \Exception('element and id is required');
     }
 
-    $options = [];
-
-    // Validate user id
-    if ($this->route->options->user_id_col) {
-      $options['filters'] = [ $this->route->options->user_id_col => Auth::$user_id ];
-    }
-
-    // Check saved data in table
-    DB::get($this->uri[0], $this->uri[1], $options);
+    $this->validateUserIdOfElement();
 
     $this->sendOk(DB::delete($this->uri[0], $this->uri[1]));
+  }
+
+  /**
+   * Validates the user id on the element given in the uri; used at PUT, PATCH, DELETE requests
+   */
+  private function validateUserIdOfElement() {
+    try {
+      $options = [
+        'filters' => [ $this->route->options->user_id_col => Auth::$user_id ]
+      ];
+
+      DB::get($this->uri[0], $this->uri[1], $options);
+    } catch (\Exception $e) {
+      if (strpos($e->getMessage(), $this->route->options->user_id_col)) {
+        throw new \Exception($e->getMessage(), 403);
+      } else {
+        throw $e;
+      }
+    }
   }
 
   /**

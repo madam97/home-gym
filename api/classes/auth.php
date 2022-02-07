@@ -51,13 +51,20 @@ class Auth {
    * Checks the JWT token in the header and its the data if there are no errors
    */
   public static function checkToken() {
-    $headers = getallheaders();
-
     try {
-      if (empty($headers['authorization'])) {
-        throw new \Exception('missing authorization header');
-      } elseif (!preg_match('/Bearer\s(\S+)/', $headers['authorization'], $matches)) {
-        throw new \Exception('was no able to extract access token from header');
+      $headers = getallheaders();
+
+      $auth_header = null;
+      foreach ($headers as $name => $value) {
+        if (strtolower($name) === 'authorization') {
+          $auth_header = $value;
+        }
+      }
+
+      if (!$auth_header) {
+        throw new \Exception('missing authorization header', 403);
+      } elseif (!preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
+        throw new \Exception('was no able to extract access token from header', 403);
       }
   
       $access_token = $matches[1];
@@ -65,12 +72,13 @@ class Auth {
       $now = new DateTimeImmutable();
   
       if ($data->iss !== SERVER_NAME || $data->nbf > $now->getTimestamp() || $data->exp < $now->getTimestamp()) {
-        throw new \Exception('unauthorized', 401);
+        throw new \Exception('unauthorized', 403);
       }
 
       self::$user_id = $data->user_id;
     } catch (\Exception $e) {
-      throw new \Exception('authorization error: '.$e->getMessage(), $e->getCode());
+      $code = $e->getCode();
+      throw new \Exception('authorization error: '.$e->getMessage(), $code ? $code : 403);
     }
   }
 
