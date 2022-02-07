@@ -7,7 +7,10 @@ type ExcerciseProps = {
 export default function Excercise({ excercise }: ExcerciseProps): JSX.Element {
   return (
     <div className="card">
-      <p className="subtitle container-float">
+      <p className="subtitle flex-block">
+        {excercise.useDumbbells && <GiWeightLiftingUp className="icon t-space-after" />}
+        {!excercise.useDumbbells && <GiMuscleUp className="icon t-space-after" />}
+
         {excercise.excerciseTypes && 
           <span>
             {excercise.excerciseTypes.map((excerciseType, index) => 
@@ -15,9 +18,6 @@ export default function Excercise({ excercise }: ExcerciseProps): JSX.Element {
             )}
           </span>
         }
-        
-        {excercise.useDumbbells && <GiWeightLiftingUp className="icon float-right" />}
-        {!excercise.useDumbbells && <GiMuscleUp className="icon float-right" />}
       </p>
       <p className="title">{excercise.name}</p>
       <p className="para-hidden-3">{excercise.desc}</p>

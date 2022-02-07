@@ -94,7 +94,7 @@ export default function Excercises({}: ExcercisesProps): JSX.Element {
       <section className="section">
         <div className="row">
           {getExcercises().map((excercise) => (
-            <div key={excercise.id} className="col sm-6 md-4 lg-3">
+            <div key={excercise.id} className="col sm-6 lg-4">
               <Excercise excercise={excercise} />
             </div>
           ))}
