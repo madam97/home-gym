@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import useFetch from './useFetch';
 
 type ProvideAuthProps = {
   children: React.ReactChild

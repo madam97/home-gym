@@ -1,30 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import routes from '../config/routes';
+import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Header(): JSX.Element {
 
+  const theme = useTheme();
   const auth = useAuth();
   const history = useHistory();
 
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
-
-  /**
-   * Returns true if user is on home page
-   * @returns 
-   */
-   const getNavTransparent = (): boolean => {
-    return history.location.pathname === '/' || history.location.pathname === '/home';
-  }
-
-  const [navTransparent, setNavTransparent] = useState<boolean>(getNavTransparent());
-
-  useEffect(() => {
-    history.listen(() => {
-      setNavTransparent(getNavTransparent());
-    });
-  }, [history, setNavTransparent]);
 
   /**
    * Opens/closes the header menu
@@ -50,7 +36,7 @@ export default function Header(): JSX.Element {
   return (
     <>
       <header>
-        <nav className={`nav ${navTransparent ? 'nav-transparent' : ''}`}>
+        <nav className={`nav ${theme.navTransparent ? 'nav-transparent' : ''}`}>
           <Link className="logo mr-auto" to="/">HomeGym</Link>
 
           <ul className={`nav-menu ${menuOpened ? 'opened' : ''}`}>
