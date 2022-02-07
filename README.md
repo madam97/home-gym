@@ -13,4 +13,4 @@ The website has the following functions:
 - responsive UI
 - navigation
 - arrange training plan (set training days, repetitions, exercises, etc.) 
-- training statistics
+- training statistics  
