@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from './useAuth';
 
 type RunFetchParams = {
   body?: object, 
@@ -19,6 +20,8 @@ type TUseFetch<T> = {
 
 export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): TUseFetch<T> {
 
+  const auth = useAuth();
+
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
   const [data, setData] = useState<T | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -37,33 +40,30 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
     const fetchData = async (): Promise<T> => {
       let res: Response = new Response();
 
-      if (method === 'GET' || method === 'DELETE') {
-        res = await fetch(process.env.REACT_APP_API_BASE_URL + url, {
-          method: method,
-          signal: abortController.signal
-        });
-      } else {
+      let init: RequestInit = {
+        method: method,
+        signal: abortController.signal,
+        headers: auth.getHeaders({
+          'Content-Type': 'application/json'
+        })
+      };
+      if (method !== 'GET' && method !== 'DELETE') {
         if (!body) {
           throw Error(`missing body of the ${method} ${url} request`);
         }
 
-        res = await fetch(process.env.REACT_APP_API_BASE_URL + url, {
-          method: method,
-          signal: abortController.signal,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
+        init.body = JSON.stringify(body);
       }
 
-      console.log(`TEST: useFetch ${method} ${process.env.REACT_APP_API_BASE_URL + url}`, body);
+      res = await fetch(process.env.REACT_APP_API_BASE_URL + url, init);
 
-      if (!res.ok) {
-        throw Error('was not able to fetch data');
-      }
+      console.log(`TEST: useFetch ${method} ${process.env.REACT_APP_API_BASE_URL + url}`, init);
 
       const data = await res.json();
+
+      if (!res.ok) {
+        throw Error(`was not able to fetch data - ${data.message}`);
+      }
 
       return data;
     }

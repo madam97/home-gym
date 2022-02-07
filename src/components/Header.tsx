@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import routes from '../config/routes';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Header(): JSX.Element {
+
+  const auth = useAuth();
+  const history = useHistory();
 
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
 
@@ -12,29 +17,48 @@ export default function Header(): JSX.Element {
     setMenuOpened(!menuOpened);
   }
 
+  /**
+   * Logouts the user
+   * @param event 
+   */
+  const logout = (event: React.FormEvent<HTMLFormElement | HTMLButtonElement>): void => {
+    event.preventDefault();
+
+    auth.logout();
+    history.push('/login');
+  }
+
+
+  // ---------------------------------------------
+
   return (
-    <header>
-      <nav className="nav">
-        <Link className="logo" to="/">HomeGym</Link>
+    <>
+      <header>
+        <nav className="nav">
+          <Link className="logo mr-auto" to="/">HomeGym</Link>
 
-        <button className="nav-toggler" onClick={toggleMenu}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+          <ul className={`nav-menu ${menuOpened ? 'opened' : ''}`}>
+            {routes.map((route) => {
+              if (route.showInHeader && (!route.loginRequired || auth.user)) {
+                return (
+                  <li>
+                    <Link to={route.path}>{route.name}</Link>
+                  </li>
+                );
+              }
+            })}
+          </ul>
 
-        <ul className={`nav-menu ${menuOpened ? 'opened' : ''}`}>
-          <li>
-            <Link to="/my-workout">My workout plan</Link>
-          </li>
-          <li>
-            <Link to="/performance">Workout performance</Link>
-          </li>
-          <li>
-            <Link to="/excercises">Excercises</Link>
-          </li>
-        </ul>
-      </nav>
-    </header>
+          {!auth.user && <Link className="btn btn-primary" to="/login">Login</Link>}
+          {auth.user && <button className="btn btn-primary" onClick={(event) => logout(event)}>Logout</button>}
+
+          <button className="nav-toggler" onClick={toggleMenu}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </nav>
+      </header>
+    </>
   )
 };
