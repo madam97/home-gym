@@ -4,6 +4,7 @@ import MyWorkoutEdit from '../pages/MyWorkoutEdit';
 import Performance from '../pages/Performance';
 import Excercises from '../pages/Excercises';
 import Login from '../pages/Login';
+import ErrorPage from '../pages/Error';
 
 const routes: IRoute[] = [
   {
@@ -30,6 +31,7 @@ const routes: IRoute[] = [
     component: MyWorkoutEdit,
     name: 'Edit my workout'
   },
+  /*
   {
     path: '/performance',
     exact: true,
@@ -38,6 +40,7 @@ const routes: IRoute[] = [
     component: Performance,
     name: 'My performance'
   },
+  */
   {
     path: '/excercises',
     exact: true,
@@ -53,6 +56,17 @@ const routes: IRoute[] = [
     showInHeader: false,
     component: Login,
     name: 'Login'
+  },
+  {
+    path: '/404',
+    exact: true,
+    loginRequired: false,
+    showInHeader: false,
+    component: ErrorPage,
+    name: '404 error',
+    props: {
+      code: 404
+    }
   }
 ];
 
