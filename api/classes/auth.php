@@ -65,6 +65,38 @@ class Auth {
   }
 
   /**
+   * Registers a new user
+   */
+  public static function register($data) {
+    try {
+      if (!isset($data['username']) || !isset($data['password']) || !isset($data['password2']) || $data['password'] !== $data['password2']) {
+        throw new \Exception('missing data for registration');
+      }
+
+      $saved_user = DB::get('users', 0, [
+        'filters' => ['username' => trim($data['username']) ],
+        'limit_one' => true
+      ]);
+
+      if ($saved_user) {
+        throw new \Exception('username is used');
+      }
+
+      $user = [
+        'username' => trim($data['username']),
+        'password' => password_hash(trim($data['password']), PASSWORD_DEFAULT),
+        'refreshToken' => null,
+        'role' => 'user'
+      ];
+
+      DB::insert('users', $user);
+
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage(), 401);
+    }
+  }
+
+  /**
    * Refreshes the logged user's access token 
    * @param array $data The login data: username, password
    * @return array
