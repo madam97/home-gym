@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import LoginError from '../errors/LoginError';
 
 type ProvideAuthProps = {
   children: React.ReactChild
@@ -8,7 +9,8 @@ type TUseAuthService = {
   user: IUser | undefined,
   getHeaders(headers: HeadersInit): HeadersInit | undefined,
   login(username: string, password: string): Promise<void>,
-  logout(): void
+  logout(): Promise<void>,
+  refreshToken(): Promise<void>
 };
 
 
@@ -37,6 +39,9 @@ const useAuthService = (): TUseAuthService => {
    * @returns 
    */
   const getHeaders = (headers: HeadersInit): HeadersInit | undefined => {
+    const data = localStorage.getItem('currentUser');
+    const user = data ? JSON.parse(data) : null;
+
     return user && user.accessToken ? { ...headers, Authorization: `Bearer ${user.accessToken}` } : headers;
   }
 
@@ -46,34 +51,95 @@ const useAuthService = (): TUseAuthService => {
    * @param password 
    */
   const login = async (username: string, password: string): Promise<void> => {
-    try {
-      const res = await fetch(process.env.REACT_APP_API_BASE_URL + '/auth/login', {
+    const res = await fetch(process.env.REACT_APP_API_BASE_URL + '/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new LoginError(data.message);
+    } else if (!data.accessToken) {
+      throw new LoginError('missing access token');
+    }
+
+    saveUserDataAndTokens(data);
+  }
+
+  /**
+   * Remove the saved user data from local storage, destroys refresh token
+   */
+  const logout = async (): Promise<void> => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken) {
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + '/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ refreshToken })
       });
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message);
+        throw new LoginError(data.message);
+      }
+    }
+
+    removeUserDataAndToken();
+  }
+
+  /**
+   * Refreshes the logged user's access token by using the refresh token
+   */
+  const refreshToken = async (): Promise<void> => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken) {
+      const res = await fetch(process.env.REACT_APP_API_BASE_URL + '/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refreshToken })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new LoginError(data.message);
+      } else if (!data.accessToken) {
+        throw new LoginError('missing access token');
       }
 
-      if (data.accessToken) {
-        localStorage.setItem('currentUser', JSON.stringify(data));
-      }
-      setUser(data);
-    } catch (err) {
-      console.log('login error', err);
+      saveUserDataAndTokens(data);
     }
   }
 
   /**
-   * Remove the saved user data from local storage
+   * Saves the logged user's data and access tokens
+   * @param data
    */
-  const logout = (): void => {
+  const saveUserDataAndTokens = (data: IObject): void =>  {
+    const newUser: IUser = {
+      username: data.username,
+      accessToken: data.accessToken 
+    };
+
+    localStorage.setItem('currentUser', JSON.stringify(newUser));
+    localStorage.setItem('refreshToken', data.refreshToken);
+    setUser(newUser);
+  }
+
+  /**
+   * Removes the logged user's saved data and access tokens
+   */
+  const removeUserDataAndToken = (): void => {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('refreshToken');
     setUser(undefined);
   }
 
@@ -81,7 +147,8 @@ const useAuthService = (): TUseAuthService => {
     user,
     getHeaders,
     login,
-    logout
+    logout,
+    refreshToken
   };
 }
 
@@ -90,7 +157,8 @@ const authContext = createContext<TUseAuthService>({
   user: undefined,
   getHeaders: (headers: HeadersInit): HeadersInit | undefined => { return undefined; },
   login: async (): Promise<void> => {},
-  logout: () => {}
+  logout: async (): Promise<void> => {},
+  refreshToken: async (): Promise<void> => {},
 });
 
 

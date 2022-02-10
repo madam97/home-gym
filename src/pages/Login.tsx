@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import LoginError from '../errors/LoginError';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Login(): JSX.Element {
@@ -9,15 +10,26 @@ export default function Login(): JSX.Element {
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
   /**
    * Logins the user
    * @param event 
    */
-  const login = (event: React.FormEvent<HTMLFormElement | HTMLButtonElement>): void => {
+  const login = async (event: React.FormEvent<HTMLFormElement | HTMLButtonElement>): Promise<void> => {
     event.preventDefault();
 
-    auth.login(username, password).then(() => history.go(-1));
+    try {
+      setError('');
+
+      await auth.login(username, password);
+      console.log('history return');
+      history.go(-1);
+    } catch (err) {
+      if (err instanceof LoginError) {
+        setError(err.message);
+      }
+    }
   }
 
 
@@ -31,7 +43,7 @@ export default function Login(): JSX.Element {
           <h1 className="t-center">Login to HomeGym</h1>
 
           <form onSubmit={(event) => login(event)}>
-            <div className="input-row">
+            <div className={`input-row ${error ? 'input-row-error' : ''}`}>
               <input 
                 className="input"
                 name="username"
@@ -41,7 +53,7 @@ export default function Login(): JSX.Element {
                 placeholder="Username"
               />
             </div>
-            <div className="input-row">
+            <div className={`input-row ${error ? 'input-row-error' : ''}`}>
               <input 
                 className="input"
                 name="username"
@@ -50,6 +62,8 @@ export default function Login(): JSX.Element {
                 onChange={(event) => setPassword(event.currentTarget.value)}
                 placeholder="Password"
               />
+
+              {error && <p className="input-message">{error}</p>}
             </div>
 
             <div className="t-center">

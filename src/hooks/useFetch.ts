@@ -34,10 +34,37 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
    */
   const runFetch = useCallback(({ body, callback}: RunFetchParams): void => {
     /**
+     * Fetch with interceptor
+     * @param input 
+     * @param init 
+     * @returns 
+     */
+    const fetchInterceptor = async(input: RequestInfo, init?: RequestInit | undefined): Promise<Response> => {
+      let res = await fetch(input, init);
+
+      if (!res.ok && res.status === 401) {
+        await auth.refreshToken();
+
+        const newInit = {
+          ...init,
+          headers: auth.getHeaders({
+            'Content-Type': 'application/json'
+          })
+        };
+
+        res = await fetch(input, newInit);
+      }
+
+      return res;
+    }
+
+    /**
      * Asks down the data using the API url
      * @returns 
      */
     const fetchData = async (): Promise<T> => {
+      console.log(`FETCH start ${method} ${process.env.REACT_APP_API_BASE_URL + url}`);
+
       let res: Response = new Response();
 
       let init: RequestInit = {
@@ -55,9 +82,7 @@ export default function useFetch<T>({method = 'GET', url = ''}: UseFetchProps): 
         init.body = JSON.stringify(body);
       }
 
-      res = await fetch(process.env.REACT_APP_API_BASE_URL + url, init);
-
-      console.log(`TEST: useFetch ${method} ${process.env.REACT_APP_API_BASE_URL + url}`, init);
+      res = await fetchInterceptor(process.env.REACT_APP_API_BASE_URL + url, init);
 
       const data = await res.json();
 
