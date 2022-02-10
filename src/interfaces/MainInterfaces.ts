@@ -1,3 +1,7 @@
+interface IObject {
+  [name: string]: any
+};
+
 interface IFormErrors {
   [name: string]: string | undefined
 };
