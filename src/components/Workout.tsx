@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 import { GiWeightLiftingUp, GiMuscleUp, GiCheckMark } from 'react-icons/gi';
 import useFetch from '../hooks/useFetch';
 

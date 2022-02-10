@@ -20,10 +20,7 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
 
   const [excerciseName, setExcerciseName] = useState<string>('');
   const [weightTypeName, setWeightTypeName] = useState<string>('');
-  const [formErrors, setFormErrors] = useState<IFormErrors>({
-    excercise: undefined,
-    weightType: undefined
-  });
+  const [formErrors, setFormErrors] = useState<IFormErrors>({});
 
   /**
    * Set form values
@@ -200,9 +197,6 @@ export default function WorkoutFrom({ index = -1, workout, excercises, weightTyp
       setRepetitions(newRepetitions);
     }
   }
-
-
-  /// VALIDATE
 
   /**
    * Validates the workout data

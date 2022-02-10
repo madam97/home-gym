@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import routes from '../config/routes';
 import { useTheme } from '../hooks/useTheme';

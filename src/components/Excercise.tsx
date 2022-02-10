@@ -1,3 +1,4 @@
+import React from 'react';
 import { GiWeightLiftingUp, GiMuscleUp } from 'react-icons/gi';
 
 type ExcerciseProps = {
