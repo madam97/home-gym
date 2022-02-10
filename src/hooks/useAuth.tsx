@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import LoginError from '../errors/LoginError';
+import AuthError from '../errors/AuthError';
 
 type ProvideAuthProps = {
   children: React.ReactChild
@@ -10,6 +10,7 @@ type TUseAuthService = {
   getHeaders(headers: HeadersInit): HeadersInit | undefined,
   login(username: string, password: string): Promise<void>,
   logout(): Promise<void>,
+  register(data: IObject): Promise<void>,
   refreshToken(): Promise<void>
 };
 
@@ -61,9 +62,9 @@ const useAuthService = (): TUseAuthService => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new LoginError(data.message);
+      throw new AuthError(data.message);
     } else if (!data.accessToken) {
-      throw new LoginError('missing access token');
+      throw new AuthError('missing access token');
     }
 
     saveUserDataAndTokens(data);
@@ -86,11 +87,34 @@ const useAuthService = (): TUseAuthService => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new LoginError(data.message);
+        throw new AuthError(data.message);
       }
     }
 
     removeUserDataAndToken();
+  }
+
+  /**
+   * Registers a new user
+   * @param newUser
+   */
+  const register = async (newUser: IObject): Promise<void> => {
+    const res = await fetch(process.env.REACT_APP_API_BASE_URL + '/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        username: newUser.username, 
+        password: newUser.password,
+        password2: newUser.password2
+      })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new AuthError(data.message);
+    }
   }
 
   /**
@@ -110,9 +134,9 @@ const useAuthService = (): TUseAuthService => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new LoginError(data.message);
+        throw new AuthError(data.message);
       } else if (!data.accessToken) {
-        throw new LoginError('missing access token');
+        throw new AuthError('missing access token');
       }
 
       saveUserDataAndTokens(data);
@@ -148,6 +172,7 @@ const useAuthService = (): TUseAuthService => {
     getHeaders,
     login,
     logout,
+    register,
     refreshToken
   };
 }
@@ -158,6 +183,7 @@ const authContext = createContext<TUseAuthService>({
   getHeaders: (headers: HeadersInit): HeadersInit | undefined => { return undefined; },
   login: async (): Promise<void> => {},
   logout: async (): Promise<void> => {},
+  register: async (data: IObject): Promise<void> => {},
   refreshToken: async (): Promise<void> => {},
 });
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import LoginError from '../errors/LoginError';
+import { Link, useHistory } from 'react-router-dom';
+import FormInputPassword from '../components/FormInputPassword';
+import AuthError from '../errors/AuthError';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Login(): JSX.Element {
@@ -10,7 +11,7 @@ export default function Login(): JSX.Element {
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [formError, setFormError] = useState<string>('');
 
   /**
    * Logins the user
@@ -20,14 +21,14 @@ export default function Login(): JSX.Element {
     event.preventDefault();
 
     try {
-      setError('');
+      setFormError('');
 
       await auth.login(username, password);
       console.log('history return');
       history.go(-1);
     } catch (err) {
-      if (err instanceof LoginError) {
-        setError(err.message);
+      if (err instanceof AuthError) {
+        setFormError(err.message);
       }
     }
   }
@@ -40,10 +41,11 @@ export default function Login(): JSX.Element {
     <section className="section">
       <div className="row row-center">
         <div className="col xs-12 sm-6">
-          <h1 className="t-center">Login to HomeGym</h1>
 
-          <form onSubmit={(event) => login(event)}>
-            <div className={`input-row ${error ? 'input-row-error' : ''}`}>
+          <form className="mt-2 card bg-gray" onSubmit={(event) => login(event)}>
+            <h1 className="t-center">Login to HomeGym</h1>
+
+            <div className={`input-row ${formError ? 'input-row-error' : ''}`}>
               <input 
                 className="input"
                 name="username"
@@ -53,17 +55,15 @@ export default function Login(): JSX.Element {
                 placeholder="Username"
               />
             </div>
-            <div className={`input-row ${error ? 'input-row-error' : ''}`}>
-              <input 
-                className="input"
-                name="username"
-                type="password"
+            <div className={`input-row ${formError ? 'input-row-error' : ''}`}>
+              <FormInputPassword
+                name="password"
                 value={password}
-                onChange={(event) => setPassword(event.currentTarget.value)}
+                setValue={setPassword}
                 placeholder="Password"
               />
 
-              {error && <p className="input-message">{error}</p>}
+              {formError && <p className="input-message">{formError}</p>}
             </div>
 
             <div className="t-center">
@@ -74,6 +74,13 @@ export default function Login(): JSX.Element {
               >Login</button>
             </div>
           </form>
+
+          <p className="my-3 t-center">
+            <span className="title title-lined">or</span>
+          </p>
+          <p className="t-center">
+            <Link className="link" to="/register">Register</Link> a new HomeGym account
+          </p>
         </div>
       </div>
 

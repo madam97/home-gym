@@ -1,9 +1,10 @@
 import Home from '../pages/Home';
 import MyWorkout from '../pages/MyWorkout';
 import MyWorkoutEdit from '../pages/MyWorkoutEdit';
-import Performance from '../pages/Performance';
+// import Performance from '../pages/Performance';
 import Excercises from '../pages/Excercises';
 import Login from '../pages/Login';
+import Register from '../pages/Register';
 import ErrorPage from '../pages/Error';
 
 const routes: IRoute[] = [
@@ -56,6 +57,14 @@ const routes: IRoute[] = [
     showInHeader: false,
     component: Login,
     name: 'Login'
+  },
+  {
+    path: '/register',
+    exact: true,
+    loginRequired: false,
+    showInHeader: false,
+    component: Register,
+    name: 'Register'
   },
   {
     path: '/404',
