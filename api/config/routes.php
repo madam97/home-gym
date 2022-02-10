@@ -4,7 +4,7 @@ $routes = [
   // Auth
   [
     'methods' => ['POST'], 
-    'url' => 'auth/login'
+    'url' => 'auth/(login|logout|refresh)'
   ],
 
   // Workouts

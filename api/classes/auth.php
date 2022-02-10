@@ -11,40 +11,86 @@ class Auth {
    * @return array
    */
   public static function login($data) {
-    $username = trim(isset($data['username']) ? $data['username'] : '');
-    $password = trim(isset($data['password']) ? $data['password'] : '');
-
-    if (!$username || !$password) {
-      throw new \Exception('missing username or password');
+    try {
+      $username = isset($data['username']) ? trim($data['username']) : '';
+      $password = isset($data['password']) ? trim($data['password']) : '';
+  
+      if (!$username || !$password) {
+        throw new \Exception('missing username or password');
+      }
+  
+      // Gets user's data from database
+      $user = DB::get('users', 0, [
+        'filters' => ['username' => $username],
+        'limit_one' => true
+      ]);
+  
+      if (!$user || !password_verify($password, $user['password'])) {
+        throw new \Exception('invalid username or password');
+      }
+  
+      return self::getUserDataAndTokens($user);
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage(), 401);
     }
+  }
 
-    // Gets user's data from database
-    $user = DB::get('users', 0, [
-      'filters' => ['username' => $username],
-      'limit_one' => true
-    ]);
+  /**
+   * Destroys the refresh token
+   * @param array $data
+   */
+  public static function logout($data) {
+    try {
+      $refresh_token = isset($data['refreshToken']) ? trim($data['refreshToken']) : '';
+  
+      if (!$refresh_token) {
+        throw new \Exception('missing refresh token');
+      }
+  
+      // Gets user's data from database
+      $user = DB::get('users', 0, [
+        'filters' => ['refreshToken' => $refresh_token],
+        'limit_one' => true
+      ]);
+  
+      if (!$user) {
+        throw new \Exception('invalid refresh token');
+      }
 
-    if (!$user || !password_verify($password, $user['password'])) {
-      throw new \Exception('invalid username or password');
+      DB::update('users', $user['id'], ['refreshToken' => null]);
+
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage(), 401);
     }
+  }
 
-    // Generate JWT token
-    $now = new \DateTimeImmutable();
-    $expire = $now->modify('+30 minutes')->getTimestamp();
-
-    $data = [
-      'iat' => $now->getTimestamp(),
-      'iss' => SERVER_NAME,
-      'nbf' => $now->getTimestamp(),
-      'exp' => $expire,
-      'user_id' => $user['id']
-    ];
-    $access_token = \Firebase\JWT\JWT::encode($data, AUTH_SECRET_KEY, 'HS512');
-
-    return [
-      'username' => $username,
-      'accessToken' => $access_token
-    ];
+  /**
+   * Refreshes the logged user's access token 
+   * @param array $data The login data: username, password
+   * @return array
+   */
+  public static function refresh($data) {
+    try {
+      $refresh_token = isset($data['refreshToken']) ? trim($data['refreshToken']) : '';
+  
+      if (!$refresh_token) {
+        throw new \Exception('missing refresh token');
+      }
+  
+      // Gets user's data from database
+      $user = DB::get('users', 0, [
+        'filters' => ['refreshToken' => $refresh_token],
+        'limit_one' => true
+      ]);
+  
+      if (!$user) {
+        throw new \Exception('invalid refresh token');
+      }
+  
+      return self::getUserDataAndTokens($user);
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage(), 401);
+    }
   }
 
   /**
@@ -72,14 +118,49 @@ class Auth {
       $now = new DateTimeImmutable();
   
       if ($data->iss !== SERVER_NAME || $data->nbf > $now->getTimestamp() || $data->exp < $now->getTimestamp()) {
-        throw new \Exception('unauthorized', 403);
+        throw new \Exception('unauthorized', 401);
       }
 
-      self::$user_id = $data->user_id;
+      $user = DB::get('users', 0, [
+        'filters' => ['username' => $data->username],
+        'limit_one' => true
+      ]);
+
+      self::$user_id = $user['id'];
     } catch (\Exception $e) {
       $code = $e->getCode();
-      throw new \Exception('authorization error: '.$e->getMessage(), $code ? $code : 403);
+      throw new \Exception('authorization error: '.$e->getMessage(), $code ? $code : 401);
     }
+  }
+
+  /**
+   * Returns the given user's data and access tokens
+   * @param array $user
+   * @return array
+   */
+  private static function getUserDataAndTokens($user) {
+    $now = new \DateTimeImmutable();
+  
+    $data = [
+      'iat' => $now->getTimestamp(),
+      'iss' => SERVER_NAME,
+      'nbf' => $now->getTimestamp(),
+      'exp' => $now->modify(AUTH_ACCESS_TOKEN_LIFE)->getTimestamp(),
+      'username' => $user['username']
+    ];
+    $access_token = \Firebase\JWT\JWT::encode($data, AUTH_SECRET_KEY, 'HS512');
+
+    $data['exp'] = $now->modify(AUTH_REFRESH_TOKEN_LIFE)->getTimestamp();
+    $refresh_token = \Firebase\JWT\JWT::encode($data, AUTH_SECRET_KEY, 'HS512');
+
+    DB::update('users', $user['id'], ['refreshToken' => $refresh_token]);
+
+    return [
+      'username' => $user['username'],
+      'accessToken' => $access_token,
+      'refreshToken' => $refresh_token
+      // 'role' => $user['role']
+    ];
   }
 
 }
