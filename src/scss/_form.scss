@@ -4,6 +4,7 @@
   border: 1px solid $gray-c1;
   border-radius: 5px;
   font-size: 1em;
+  line-height: 1em;
 
   &.active {
     border-color: $gray-7a;
@@ -67,6 +68,14 @@ input.input-number-hide-arrows {
   padding: 0 0.5em;
   border: 1px solid $gray-c1;
   background: $gray-e5;
+
+  @at-root button#{&} {
+    &:hover,
+    &.active {
+      border-color: $primary;
+      background: $primary;
+    }
+  }
 
   &:not(.input-btn-rounded):first-child {
     border-right: 0;

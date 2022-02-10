@@ -42,6 +42,25 @@ h6,.h6 { font-size: 1.1em; }
 h1,h2,h3,.h1,.h2,.h3 { margin: 0 0 $gap * 2 0; }
 h4,h5,h6,.h4,.h5,.h6 { margin: 0 0 $gap  0; }
 
+.title-lined {
+  position: relative;
+  padding: 0 4 * $gap;
+
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0.5em;
+    width: 3 * $gap;
+    height: 1px; 
+    background: $black;
+  }
+  
+  &::before { left: 0; }
+  &::after { right: 0; }
+}
+
 .subtitle {
   margin: 0 0 0.8em 0;
   color: $gray-7a;
@@ -63,6 +82,7 @@ a {
   color: $gray-33;
   text-decoration: none;
 
+  &.link,
   &:hover, 
   &:active,
   &:focus {

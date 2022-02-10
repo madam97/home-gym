@@ -135,6 +135,14 @@ svg.icon {
   & * {
     fill: $black;
   }
+
+  button.input-btn:hover &,
+  button.input-btn.active & {
+    &,
+    & * {
+      fill: $white;
+    }
+  }
 }
 
 svg.icon-green {
@@ -147,7 +155,6 @@ svg.icon-green {
 @for $i from 1 through 5 {
   svg.icon-#{$i} { width: 10px + 10px * $i; height: 10px + 10px * $i;  }
 }
-
 
 
 // Others
