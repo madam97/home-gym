@@ -148,7 +148,7 @@ class Auth {
       $data = \Firebase\JWT\JWT::decode($access_token, new \Firebase\JWT\Key(AUTH_SECRET_KEY, 'HS512'));
       $now = new DateTimeImmutable();
   
-      if ($data->iss !== SERVER_NAME || $data->nbf > $now->getTimestamp() || $data->exp < $now->getTimestamp()) {
+      if ($data->iss !== getenv('URL_ROOT') || $data->nbf > $now->getTimestamp() || $data->exp < $now->getTimestamp()) {
         throw new \Exception('unauthorized', 401);
       }
 
@@ -179,7 +179,7 @@ class Auth {
   
     $data = [
       'iat' => $now->getTimestamp(),
-      'iss' => SERVER_NAME,
+      'iss' => getenv('URL_ROOT'),
       'nbf' => $now->getTimestamp(),
       'exp' => $now->modify(AUTH_ACCESS_TOKEN_LIFE)->getTimestamp(),
       'username' => $user['username']
