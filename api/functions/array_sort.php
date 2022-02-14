@@ -15,7 +15,8 @@ if (!function_exists('dsort')) {
     if (!$order) {
       $order = array_fill(0, $count_sort, 'asc');
     } else {
-      foreach ($order as $i => $ord) {
+      foreach ($order as $i => &$ord) {
+        $ord = strtolower($ord);
         if ($ord != 'asc' && $ord != 'desc') {
           throw new \Exception("dsort() error: ".($i+1).". order is invalid, value can be 'asc' or 'desc'");
         }
