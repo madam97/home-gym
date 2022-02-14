@@ -4,6 +4,8 @@ class DB {
   /** @var array DEF_GET_OPTIONS The default get function's options */
   const DEF_GET_OPTIONS = [
     'filters' => [],
+    'start' => null,
+    'end' => null,
     'page' => null,
     'limit' => 10,
     'sort' => [],
@@ -90,29 +92,21 @@ class DB {
         $ret = reset($ret);
       }
       else {
-        // Pagination
-        if ($options['page']) {
+        // Slice / pagination
+        if (!is_null($options['start']) || $options['page']) {
           $count = count($ret);
-          $offset = ($options['page'] - 1) * $options['limit'];
-          $length = ($options['page']) * $options['limit'];
-
-          $ret = array_slice($ret, $offset, $length);
-
-          // Set headers
-          header('Content-Range: '.$table.' '.($offset+1).'-'.$length.'/'.$count);
-
-          $links = [
-            '<'.getenv('URL_ROOT').'/excercises?_page=1&_limit='.$options['limit'].'>; rel="first"'
-          ];
-          if ($offset > 0) {
-            $links[] = '<'.getenv('URL_ROOT').'/excercises?_page='.($offset).'&_limit='.$options['limit'].'>; rel="prev"';
+          if (!is_null($options['start'])) {
+            $used_slice = true;
+            $limit = $options['end'] ? $options['end'] - $options['start'] : $options['limit'];
+            $offset = $options['start'];
+          } else {
+            $limit = $options['limit'];
+            $offset = ($options['page'] - 1) * $limit;
           }
-          if ($length < $count) {
-            $links[] = '<'.getenv('URL_ROOT').'/excercises?_page='.($offset+2).'&_limit='.$options['limit'].'>; rel="next"';
-          }
-          $links[] = '<'.getenv('URL_ROOT').'/excercises?_page='.(floor($count / $options['limit'])).'&_limit='.$options['limit'].'>; rel="last"';
-          
-          header('Link: '.implode(', ', $links));
+
+          $ret = array_slice($ret, $offset, $limit);
+
+          API::setHeadersPagination($table, $count, $offset, $limit, $used_slice);
         }
 
         if ($options['sort']) {

@@ -12,14 +12,12 @@ require ROOT.'/classes/api.php';
 require ROOT.'/classes/db.php';
 require ROOT.'/classes/auth.php';
 
-$api = new API();
-
 try {
+  API::init();
   DB::load();
-
-  $api->processRequest();
+  API::processRequest();
 
   throw new \Exception('unknown endpoint');  
 } catch (\Exception $e) {
-  $api->sendError($e->getMessage(), $e->getCode());
+  API::sendError($e->getMessage(), $e->getCode());
 }
