@@ -131,9 +131,11 @@ const useAuthService = (): TUseAuthService => {
         },
         body: JSON.stringify({ refreshToken })
       });
+
       const data = await res.json();
 
       if (!res.ok) {
+        logout();
         throw new AuthError(data.message);
       } else if (!data.accessToken) {
         throw new AuthError('missing access token');
@@ -150,6 +152,7 @@ const useAuthService = (): TUseAuthService => {
   const saveUserDataAndTokens = (data: IObject): void =>  {
     const newUser: IUser = {
       username: data.username,
+      role: data.role,
       accessToken: data.accessToken 
     };
 
