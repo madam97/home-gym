@@ -53,11 +53,9 @@ class Auth {
         'limit_one' => true
       ]);
   
-      if (!$user) {
-        throw new \Exception('invalid refresh token');
+      if ($user) {
+        DB::update('users', $user['id'], ['refreshToken' => null]);
       }
-
-      DB::update('users', $user['id'], ['refreshToken' => null]);
 
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage(), 401);
@@ -126,9 +124,10 @@ class Auth {
   }
 
   /**
-   * Checks the JWT token in the header and its the data if there are no errors
+   * Checks if the JWT token is in the header, verifies the existence of the user and their role
+   * @param string $role
    */
-  public static function checkToken() {
+  public static function checkToken($role = null) {
     try {
       $headers = getallheaders();
 
@@ -157,6 +156,11 @@ class Auth {
         'filters' => ['username' => $data->username],
         'limit_one' => true
       ]);
+
+      // Verify the user's role
+      if ($role && $role !== ROLE_USER && $user['role'] !== $role) {
+        throw new \Exception('user do not have '.$role.' role');
+      }
 
       self::$user_id = $user['id'];
     } catch (\Exception $e) {
@@ -189,9 +193,9 @@ class Auth {
 
     return [
       'username' => $user['username'],
+      'role' => $user['role'],
       'accessToken' => $access_token,
       'refreshToken' => $refresh_token
-      // 'role' => $user['role']
     ];
   }
 

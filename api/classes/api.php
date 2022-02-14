@@ -11,7 +11,7 @@ class API {
 
   /** @var array DEF_ROUTE_OPTIONS Default route options */
   const DEF_ROUTE_OPTIONS = [
-    'user_login_required' => false,
+    'required_role' => null,
     'user_id_col' => null
   ];
 
@@ -96,8 +96,8 @@ class API {
       throw new \Exception("'{$this->method}' is not allowed on '$uri' endpoint");
     }
 
-    if ($this->route->options->user_login_required) {
-      Auth::checkToken();
+    if ($this->route->options->required_role) {
+      Auth::checkToken($this->route->options->required_role);
     }
   }
 
