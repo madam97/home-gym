@@ -4,6 +4,8 @@ class DB {
   /** @var array DEF_GET_OPTIONS The default get function's options */
   const DEF_GET_OPTIONS = [
     'filters' => [],
+    'page' => null,
+    'limit' => 10,
     'sort' => [],
     'order' => [],
     'expand' => [],
@@ -87,13 +89,39 @@ class DB {
       if ($options['limit_one']) {
         $ret = reset($ret);
       }
-      // Order
-      elseif ($options['sort']) {
-        foreach ($options['sort'] as $col) {
-          self::validateCol($table, $col);
+      else {
+        // Pagination
+        if ($options['page']) {
+          $count = count($ret);
+          $offset = ($options['page'] - 1) * $options['limit'];
+          $length = ($options['page']) * $options['limit'];
+
+          $ret = array_slice($ret, $offset, $length);
+
+          // Set headers
+          header('Content-Range: '.$table.' '.($offset+1).'-'.$length.'/'.$count);
+
+          $links = [
+            '<'.getenv('URL_ROOT').'/excercises?_page=1&_limit='.$options['limit'].'>; rel="first"'
+          ];
+          if ($offset > 0) {
+            $links[] = '<'.getenv('URL_ROOT').'/excercises?_page='.($offset).'&_limit='.$options['limit'].'>; rel="prev"';
+          }
+          if ($length < $count) {
+            $links[] = '<'.getenv('URL_ROOT').'/excercises?_page='.($offset+2).'&_limit='.$options['limit'].'>; rel="next"';
+          }
+          $links[] = '<'.getenv('URL_ROOT').'/excercises?_page='.(floor($count / $options['limit'])).'&_limit='.$options['limit'].'>; rel="last"';
+          
+          header('Link: '.implode(', ', $links));
         }
 
-        dsort($ret, $options['sort'], $options['order']);
+        if ($options['sort']) {
+          foreach ($options['sort'] as $col) {
+            self::validateCol($table, $col);
+          }
+  
+          dsort($ret, $options['sort'], $options['order']);
+        }
       }
     }
     // Returns an item in the table

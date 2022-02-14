@@ -3,10 +3,12 @@
 class API {
   /** @var array SPEC_URL_PARAMS Possible special uri parameters like _sort, _order, etc. */
   const SPEC_URL_PARAMS = [
-    'expand' => 'array', 
-    'embed' => 'array', 
+    'page' => 'int',
+    'limit' => 'int',
     'sort' => 'split', 
-    'order' => 'split'
+    'order' => 'split',
+    'expand' => 'array', 
+    'embed' => 'array'
   ];
 
   /** @var array DEF_ROUTE_OPTIONS Default route options */
@@ -133,8 +135,15 @@ class API {
               $options[$param] = explode(',', $url_params[$key]); 
               break;
             case 'array':
-            default:
               $options[$param] = is_array($url_params[$key]) ? $url_params[$key] : [ $url_params[$key] ]; 
+            case 'int':
+              $options[$param] = intval($url_params[$key]); 
+              if (!$options[$param]) {
+                unset($options[$param]);
+              }
+              break;
+            default:
+              $options[$param] = $url_params[$key]; 
               break;
           }
         }
