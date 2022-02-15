@@ -1,3 +1,4 @@
+import AdminMain from '../pages/AdminMain';
 import Home from '../pages/Home';
 import MyWorkout from '../pages/MyWorkout';
 import MyWorkoutEdit from '../pages/MyWorkoutEdit';
@@ -8,6 +9,14 @@ import Register from '../pages/Register';
 import ErrorPage from '../pages/Error';
 
 const routes: IRoute[] = [
+  {
+    path: '/admin',
+    exact: false,
+    loginRequired: true,
+    showInHeader: false,
+    component: AdminMain,
+    name: 'Admin interface'
+  },
   {
     path: '/',
     exact: true,
