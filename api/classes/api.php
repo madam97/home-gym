@@ -126,9 +126,14 @@ class API {
 
     self::$route = null;
     foreach ($routes as $r) {
-      if (preg_match('/^'.preg_replace('/\//', '\/', $r['url']).'$/i', $uri)) {
-        self::$route = (object) $r;
-        break;
+      $r = (object) $r;
+
+      if (preg_match('/^'.preg_replace('/\//', '\/', $r->url).'$/i', $uri)) {
+        self::$route = $r;
+
+        if (in_array(self::$method, $r->methods)) {
+          break;
+        }
       }
     }
 
@@ -136,14 +141,14 @@ class API {
       throw new \Exception("'$uri' is an invalid endpoint");
     }
 
+    if (!in_array(self::$method, self::$route->methods)) {
+      throw new \Exception("'".self::$method."' is not allowed on '$uri' endpoint");
+    }
+
     if (isset(self::$route->options) && is_array(self::$route->options)) {
       self::$route->options = (object) array_merge(self::DEF_ROUTE_OPTIONS, self::$route->options);
     } else {
       self::$route->options = new stdClass();
-    }
-
-    if (!in_array(self::$method, self::$route->methods)) {
-      throw new \Exception("'{self::$method}' is not allowed on '$uri' endpoint");
     }
 
     if (self::$route->options->required_role) {
@@ -158,7 +163,7 @@ class API {
     if (empty(self::$uri[1])) {
       throw new \Exception('missing authorization process');
     } elseif (!method_exists('Auth', self::$uri[1])) {
-      throw new \Exception("'{self::$uri[1]}' is an invalid authorization process");
+      throw new \Exception("'".self::$uri[1]."' is an invalid authorization process");
     }
 
     $func = self::$uri[1];
@@ -277,11 +282,13 @@ class API {
    */
   private static function validateUserIdOfElement() {
     try {
-      $options = [
-        'filters' => [ self::$route->options->user_id_col => Auth::$user_id ]
-      ];
-
-      DB::get(self::$uri[0], self::$uri[1], $options);
+      if (self::$route->options->user_id_col) {
+        $options = [
+          'filters' => [ self::$route->options->user_id_col => Auth::$user_id ]
+        ];
+  
+        DB::get(self::$uri[0], self::$uri[1], $options);
+      }
     } catch (\Exception $e) {
       if (strpos($e->getMessage(), self::$route->options->user_id_col)) {
         throw new \Exception($e->getMessage(), 403);

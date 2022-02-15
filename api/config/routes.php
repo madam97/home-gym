@@ -32,9 +32,9 @@ $routes = [
   ],
   [
     'methods' => ['GET','POST','PUT','PATCH','DELETE'], 
-    'url' => 'excercises/[0-9]+',
+    'url' => 'excercises(/[0-9]+)?',
     'options' => [
-      'required_role' => ROLE_ADMIN
+      //'required_role' => ROLE_ADMIN
     ]
   ],
 
@@ -45,9 +45,9 @@ $routes = [
   ],
   [
     'methods' => ['GET','POST','PUT','PATCH','DELETE'], 
-    'url' => 'excerciseTypes/[0-9]+',
+    'url' => 'excerciseTypes(/[0-9]+)?',
     'options' => [
-      'required_role' => ROLE_ADMIN
+      // 'required_role' => ROLE_ADMIN
     ]
   ],
 
@@ -58,9 +58,9 @@ $routes = [
   ],
   [
     'methods' => ['GET','POST','PUT','PATCH','DELETE'], 
-    'url' => 'weightTypes/[0-9]+',
+    'url' => 'weightTypes(/[0-9]+)?',
     'options' => [
-      'required_role' => ROLE_ADMIN
+      // 'required_role' => ROLE_ADMIN
     ]
   ],
 ];
