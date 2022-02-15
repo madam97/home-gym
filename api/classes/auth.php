@@ -192,6 +192,7 @@ class Auth {
     DB::update('users', $user['id'], ['refreshToken' => $refresh_token]);
 
     return [
+      'id' => $user['id'],
       'username' => $user['username'],
       'role' => $user['role'],
       'accessToken' => $access_token,
